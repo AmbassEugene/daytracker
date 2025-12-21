@@ -82,6 +82,31 @@ export default function useTaskManager() {
     return true;
   }, [tasks, saveTasks]);
 
+  // Edit an existing task
+  const editTask = useCallback((taskData) => {
+    if (!taskData.description.trim()) {
+      Alert.alert('Error', 'Please enter a task description');
+      return false;
+    }
+
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskData.id) {
+        // Preserve original task data, only update editable fields
+        return {
+          ...task,
+          description: taskData.description,
+          purpose: taskData.purpose,
+          priority: taskData.priority,
+          isRepeating: taskData.isRepeating,
+        };
+      }
+      return task;
+    });
+
+    saveTasks(updatedTasks);
+    return true;
+  }, [tasks, saveTasks]);
+
   // Toggle task completion
   const toggleTask = useCallback((taskId) => {
     const updatedTasks = tasks.map(task =>
@@ -123,6 +148,7 @@ export default function useTaskManager() {
     tasks: sortedTasks,
     isLoading,
     addTask,
+    editTask,
     toggleTask,
     deleteTask,
   };

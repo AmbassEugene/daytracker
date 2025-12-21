@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { PRIORITY_COLORS, COLORS } from '../constants';
 
-const TaskItem = memo(({ task, onToggle, onDelete }) => (
+const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => (
   <View style={[styles.taskItem, task.completed && styles.taskItemCompleted]}>
     <TouchableOpacity
       style={styles.taskContent}
@@ -29,12 +29,20 @@ const TaskItem = memo(({ task, onToggle, onDelete }) => (
         </View>
       </View>
     </TouchableOpacity>
-    <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={() => onDelete(task.id)}
-    >
-      <Text style={styles.deleteButtonText}>×</Text>
-    </TouchableOpacity>
+    <View style={styles.actionButtons}>
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => onEdit(task)}
+      >
+        <Text style={styles.editButtonText}>✎</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => onDelete(task.id)}
+      >
+        <Text style={styles.deleteButtonText}>×</Text>
+      </TouchableOpacity>
+    </View>
   </View>
 ));
 
@@ -109,6 +117,24 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginLeft: 12,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#dbeafe',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editButtonText: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   deleteButton: {
     width: 32,
     height: 32,
@@ -116,7 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.errorLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 12,
   },
   deleteButtonText: {
     color: COLORS.error,

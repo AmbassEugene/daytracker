@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,14 +7,27 @@ import {
   TouchableOpacity,
   Modal,
   Switch,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { PRIORITY_COLORS, COLORS } from '../constants';
 
-export default function AddTaskModal({ visible, onClose, onSubmit }) {
+export default function AddTaskModal({ visible, onClose, onSubmit, editingTask = null }) {
   const [description, setDescription] = useState('');
   const [purpose, setPurpose] = useState('');
   const [priority, setPriority] = useState('medium');
   const [isRepeating, setIsRepeating] = useState(false);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (editingTask) {
+      setDescription(editingTask.description || '');
+      setPurpose(editingTask.purpose || '');
+      setPriority(editingTask.priority || 'medium');
+      setIsRepeating(editingTask.isRepeating || false);
+    }
+  }, [editingTask]);
 
   const resetForm = () => {
     setDescription('');
@@ -29,14 +42,25 @@ export default function AddTaskModal({ visible, onClose, onSubmit }) {
   };
 
   const handleSubmit = () => {
-    onSubmit({
+    const taskData = {
       description: description.trim(),
       purpose: purpose.trim(),
       priority,
       isRepeating,
-    });
+    };
+
+    // If editing, include the task ID
+    if (editingTask) {
+      taskData.id = editingTask.id;
+    }
+
+    onSubmit(taskData);
     resetForm();
   };
+
+  const isEditing = !!editingTask;
+  const modalTitle = isEditing ? 'Edit Task' : 'Add New Task';
+  const submitButtonText = isEditing ? 'Save Changes' : 'Add Task';
 
   return (
     <Modal
@@ -45,76 +69,85 @@ export default function AddTaskModal({ visible, onClose, onSubmit }) {
       visible={visible}
       onRequestClose={handleClose}
     >
-      <View style={styles.modalContainer}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.modalContainer}
+      >
+        <View style={styles.modalOverlay} onTouchStart={handleClose} />
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Add New Task</Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.modalTitle}>{modalTitle}</Text>
 
-          <Text style={styles.label}>Description *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="What do you need to do?"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
-
-          <Text style={styles.label}>Purpose</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Why is this important?"
-            value={purpose}
-            onChangeText={setPurpose}
-            multiline
-          />
-
-          <Text style={styles.label}>Priority</Text>
-          <View style={styles.priorityButtons}>
-            {['high', 'medium', 'low'].map(p => (
-              <TouchableOpacity
-                key={p}
-                style={[
-                  styles.priorityButton,
-                  { borderColor: PRIORITY_COLORS[p] },
-                  priority === p && { backgroundColor: PRIORITY_COLORS[p] }
-                ]}
-                onPress={() => setPriority(p)}
-              >
-                <Text style={[
-                  styles.priorityButtonText,
-                  priority === p && styles.priorityButtonTextActive
-                ]}>
-                  {p.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.repeatingContainer}>
-            <Text style={styles.label}>Daily Repeating Task</Text>
-            <Switch
-              value={isRepeating}
-              onValueChange={setIsRepeating}
-              trackColor={{ false: '#d1d5db', true: '#60a5fa' }}
-              thumbColor={isRepeating ? COLORS.primary : '#f3f4f6'}
+            <Text style={styles.label}>Description *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="What do you need to do?"
+              value={description}
+              onChangeText={setDescription}
+              multiline
             />
-          </View>
 
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.cancelButton]}
-              onPress={handleClose}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.saveButton]}
-              onPress={handleSubmit}
-            >
-              <Text style={styles.saveButtonText}>Add Task</Text>
-            </TouchableOpacity>
-          </View>
+            <Text style={styles.label}>Purpose</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Why is this important?"
+              value={purpose}
+              onChangeText={setPurpose}
+              multiline
+            />
+
+            <Text style={styles.label}>Priority</Text>
+            <View style={styles.priorityButtons}>
+              {['high', 'medium', 'low'].map(p => (
+                <TouchableOpacity
+                  key={p}
+                  style={[
+                    styles.priorityButton,
+                    { borderColor: PRIORITY_COLORS[p] },
+                    priority === p && { backgroundColor: PRIORITY_COLORS[p] }
+                  ]}
+                  onPress={() => setPriority(p)}
+                >
+                  <Text style={[
+                    styles.priorityButtonText,
+                    priority === p && styles.priorityButtonTextActive
+                  ]}>
+                    {p.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.repeatingContainer}>
+              <Text style={styles.label}>Daily Repeating Task</Text>
+              <Switch
+                value={isRepeating}
+                onValueChange={setIsRepeating}
+                trackColor={{ false: '#d1d5db', true: '#60a5fa' }}
+                thumbColor={isRepeating ? COLORS.primary : '#f3f4f6'}
+              />
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={handleClose}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.saveButtonText}>{submitButtonText}</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -123,6 +156,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
+  },
+  modalOverlay: {
+    flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
@@ -130,7 +166,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
-    maxHeight: '80%',
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    maxHeight: '85%',
   },
   modalTitle: {
     fontSize: 24,

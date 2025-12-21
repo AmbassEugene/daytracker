@@ -11,13 +11,34 @@ import { COLORS } from '../constants';
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-  const { tasks, isLoading, addTask, toggleTask, deleteTask } = useTaskManager();
+  const [editingTask, setEditingTask] = useState(null);
+  const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask } = useTaskManager();
 
-  const handleAddTask = (taskData) => {
-    const success = addTask(taskData);
+  const handleSubmitTask = (taskData) => {
+    let success;
+
+    if (taskData.id) {
+      // Editing existing task
+      success = editTask(taskData);
+    } else {
+      // Adding new task
+      success = addTask(taskData);
+    }
+
     if (success) {
       setModalVisible(false);
+      setEditingTask(null);
     }
+  };
+
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setEditingTask(null);
   };
 
   if (isLoading) {
@@ -33,6 +54,7 @@ export default function HomeScreen() {
       <TaskList
         tasks={tasks}
         onToggle={toggleTask}
+        onEdit={handleEditTask}
         onDelete={deleteTask}
       />
 
@@ -45,8 +67,9 @@ export default function HomeScreen() {
 
       <AddTaskModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onSubmit={handleAddTask}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitTask}
+        editingTask={editingTask}
       />
     </SafeAreaView>
   );
