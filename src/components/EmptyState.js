@@ -1,10 +1,13 @@
 import { StyleSheet, View, Text } from 'react-native';
-import { COLORS } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 export default function EmptyState({
   message = 'No goals yet!',
   subMessage = 'Tap the + button to add your first goal'
 }) {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
+
   return (
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateText}>{message}</Text>
@@ -13,7 +16,7 @@ export default function EmptyState({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -22,7 +25,7 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.textTertiary,
+    color: colors.textTertiary,
   },
   emptyStateSubtext: {
     fontSize: 14,

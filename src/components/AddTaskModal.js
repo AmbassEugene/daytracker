@@ -11,9 +11,12 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { PRIORITY_COLORS, COLORS, CATEGORIES } from '../constants';
+import { PRIORITY_COLORS, CATEGORIES } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 export default function AddTaskModal({ visible, onClose, onSubmit, editingTask = null }) {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
   const [description, setDescription] = useState('');
   const [purpose, setPurpose] = useState('');
   const [priority, setPriority] = useState('medium');
@@ -207,7 +210,7 @@ export default function AddTaskModal({ visible, onClose, onSubmit, editingTask =
                 value={isRepeating}
                 onValueChange={setIsRepeating}
                 trackColor={{ false: '#d1d5db', true: '#60a5fa' }}
-                thumbColor={isRepeating ? COLORS.primary : '#f3f4f6'}
+                thumbColor={isRepeating ? colors.primary : '#f3f4f6'}
               />
             </View>
 
@@ -268,7 +271,7 @@ export default function AddTaskModal({ visible, onClose, onSubmit, editingTask =
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -295,7 +298,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   closeButton: {
     width: 32,
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 28,
   },
   scrollContent: {
@@ -326,7 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     minHeight: 50,
   },
   priorityButtons: {
@@ -344,10 +347,10 @@ const styles = StyleSheet.create({
   priorityButtonText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   priorityButtonTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -366,10 +369,10 @@ const styles = StyleSheet.create({
   categoryButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   categoryButtonTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   repeatingContainer: {
     flexDirection: 'row',
@@ -389,19 +392,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.white,
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
   },
   quickDateButtonActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   quickDateButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   quickDateButtonTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -419,15 +422,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   cancelButtonText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   saveButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

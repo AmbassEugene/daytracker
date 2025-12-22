@@ -1,10 +1,15 @@
 import { StyleSheet, View, Text, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { COLORS } from '../constants';
 import Statistics from './Statistics';
+import useThemeColors from '../hooks/useThemeColors';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function StatisticsModal({ visible, onClose, tasks }) {
+  const colors = useThemeColors();
+  const { isDark } = useTheme();
+  const styles = getStyles(colors);
+
   return (
     <Modal
       animationType="slide"
@@ -13,7 +18,7 @@ export default function StatisticsModal({ visible, onClose, tasks }) {
       onRequestClose={onClose}
     >
       <SafeAreaView style={styles.modalContainer} edges={['top', 'left', 'right']}>
-        <StatusBar style="dark" />
+        <StatusBar style={isDark ? "light" : "dark"} />
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>Statistics</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -26,10 +31,10 @@ export default function StatisticsModal({ visible, onClose, tasks }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -37,14 +42,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   closeButton: {
     width: 32,
@@ -57,7 +62,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 28,
   },
 });

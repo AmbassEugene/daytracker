@@ -9,7 +9,9 @@ import StatisticsModal from '../components/StatisticsModal';
 import SettingsModal from '../components/SettingsModal';
 import LoadingScreen from '../components/LoadingScreen';
 import useTaskManager from '../hooks/useTaskManager';
-import { COLORS, CATEGORIES } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
+import { useTheme } from '../contexts/ThemeContext';
+import { CATEGORIES } from '../constants';
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -18,6 +20,8 @@ export default function HomeScreen() {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask } = useTaskManager();
+  const colors = useThemeColors();
+  const { isDark } = useTheme();
 
   // Filter tasks by category
   const filteredTasks = useMemo(() => {
@@ -58,9 +62,11 @@ export default function HomeScreen() {
     return <LoadingScreen />;
   }
 
+  const styles = getStyles(colors);
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? "light" : "dark"} />
 
       <Header />
 
@@ -155,15 +161,15 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   filterContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     paddingVertical: 12,
   },
   filterScrollContent: {
@@ -175,18 +181,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   filterButtonActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   filterButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   filterButtonTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   addButton: {
     position: 'absolute',
@@ -195,7 +201,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   addButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 32,
     fontWeight: '300',
   },

@@ -1,11 +1,14 @@
 import { StyleSheet, View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { COLORS } from '../constants';
 import useDataManager from '../hooks/useDataManager';
+import useThemeColors from '../hooks/useThemeColors';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function SettingsModal({ visible, onClose, tasks }) {
   const { exportData, importData, shareTasks, clearAllData } = useDataManager();
+  const colors = useThemeColors();
+  const { isDark, themeMode, setTheme } = useTheme();
 
   const handleExport = async () => {
     await exportData();
@@ -26,6 +29,8 @@ export default function SettingsModal({ visible, onClose, tasks }) {
     onClose();
   };
 
+  const styles = getStyles(colors);
+
   return (
     <Modal
       animationType="slide"
@@ -34,7 +39,7 @@ export default function SettingsModal({ visible, onClose, tasks }) {
       onRequestClose={onClose}
     >
       <SafeAreaView style={styles.modalContainer} edges={['top', 'left', 'right']}>
-        <StatusBar style="dark" />
+        <StatusBar style={isDark ? "light" : "dark"} />
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>Settings</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -93,6 +98,43 @@ export default function SettingsModal({ visible, onClose, tasks }) {
             </View>
           </TouchableOpacity>
 
+          <Text style={styles.sectionTitle}>Appearance</Text>
+
+          <View style={styles.settingItem}>
+            <View style={styles.settingIcon}>
+              <Text style={styles.iconText}>{isDark ? '🌙' : '☀️'}</Text>
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Theme</Text>
+              <View style={styles.themeOptions}>
+                <TouchableOpacity
+                  style={[styles.themeButton, themeMode === 'light' && styles.themeButtonActive]}
+                  onPress={() => setTheme('light')}
+                >
+                  <Text style={[styles.themeButtonText, themeMode === 'light' && styles.themeButtonTextActive]}>
+                    Light
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.themeButton, themeMode === 'dark' && styles.themeButtonActive]}
+                  onPress={() => setTheme('dark')}
+                >
+                  <Text style={[styles.themeButtonText, themeMode === 'dark' && styles.themeButtonTextActive]}>
+                    Dark
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.themeButton, themeMode === 'system' && styles.themeButtonActive]}
+                  onPress={() => setTheme('system')}
+                >
+                  <Text style={[styles.themeButtonText, themeMode === 'system' && styles.themeButtonTextActive]}>
+                    System
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
           <Text style={styles.sectionTitle}>About</Text>
 
           <View style={styles.settingItem}>
@@ -110,10 +152,10 @@ export default function SettingsModal({ visible, onClose, tasks }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -121,14 +163,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   closeButton: {
     width: 32,
@@ -141,7 +183,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 28,
   },
   content: {
@@ -151,14 +193,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginTop: 20,
     marginBottom: 12,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -170,7 +212,7 @@ const styles = StyleSheet.create({
   },
   dangerItem: {
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.error,
+    borderLeftColor: colors.error,
   },
   settingIcon: {
     width: 48,
@@ -190,14 +232,38 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   dangerText: {
-    color: COLORS.error,
+    color: colors.error,
   },
   settingDescription: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  themeButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+  },
+  themeButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  themeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  themeButtonTextActive: {
+    color: '#ffffff',
   },
 });

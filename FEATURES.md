@@ -36,6 +36,14 @@
 - ❌ Weekly/Monthly productivity trends (not implemented)
 - ❌ Visual charts and graphs (not implemented)
 
+### 7. Dark Mode ✅
+- ✅ Theme context and provider created
+- ✅ Light and dark color schemes defined
+- ✅ Theme toggle UI with Light/Dark/System options
+- ✅ All components updated to use dynamic theme colors
+- ✅ System-based theme detection
+- ✅ Theme preference persisted in AsyncStorage
+
 ### 9. Export/Import (Partial) ⚠️
 - ✅ Export tasks to JSON
 - ✅ Import tasks from file
@@ -50,13 +58,6 @@
 - Filter by priority, category, completion status
 - Filter by date range
 - Quick filters (Today, This Week, High Priority, etc.)
-
-### 7. Dark Mode (Partial) ⚠️
-- ✅ Theme context and provider created
-- ✅ Light and dark color schemes defined
-- ❌ Theme toggle UI (not implemented)
-- ❌ Components updated to use theme colors (not implemented)
-- ❌ System-based theme detection (ready but not connected)
 
 ### 8. Notifications
 - Reminder notifications for tasks with due dates/times

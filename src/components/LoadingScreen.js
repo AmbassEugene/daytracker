@@ -1,22 +1,25 @@
 import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 export default function LoadingScreen({ message = 'Loading tasks...' }) {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{message}</Text>
       </View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -26,6 +29,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

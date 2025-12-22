@@ -1,8 +1,11 @@
 import { memo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { PRIORITY_COLORS, COLORS, CATEGORY_MAP } from '../constants';
+import { PRIORITY_COLORS, CATEGORY_MAP } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
   const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
   const showStreakInfo = task.isRepeating && (task.currentStreak > 0 || task.longestStreak > 0);
   const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
@@ -129,9 +132,9 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
 
 export default TaskItem;
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   taskItem: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
   taskDescription: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   categoryBadge: {
     paddingHorizontal: 10,
@@ -176,18 +179,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   categoryText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 10,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   taskTextCompleted: {
     textDecorationLine: 'line-through',
-    color: COLORS.textTertiary,
+    color: colors.textTertiary,
   },
   taskPurpose: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   taskMeta: {
@@ -200,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   priorityText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 10,
     fontWeight: 'bold',
   },
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   editButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -256,12 +259,12 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.errorLight,
+    backgroundColor: colors.errorLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteButtonText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 24,
     fontWeight: 'bold',
   },
@@ -292,7 +295,7 @@ const styles = StyleSheet.create({
   },
   longestStreakText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
 });

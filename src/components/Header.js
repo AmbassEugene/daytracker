@@ -1,7 +1,10 @@
 import { StyleSheet, View, Text } from 'react-native';
-import { COLORS } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 export default function Header({ title = 'DayTracker', subtitle = 'Track your goals and build winning streaks' }) {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
+
   return (
     <View style={styles.header}>
       <Text style={styles.title}>{title}</Text>
@@ -10,21 +13,21 @@ export default function Header({ title = 'DayTracker', subtitle = 'Track your go
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   header: {
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
 });

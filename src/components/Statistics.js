@@ -1,7 +1,9 @@
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { COLORS } from '../constants';
+import useThemeColors from '../hooks/useThemeColors';
 
 export default function Statistics({ tasks }) {
+  const colors = useThemeColors();
+  const styles = getStyles(colors);
   // Calculate statistics
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.completed).length;
@@ -166,10 +168,10 @@ export default function Statistics({ tasks }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: 20,
@@ -177,7 +179,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginTop: 20,
     marginBottom: 12,
   },
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   statCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -215,15 +217,15 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   percentValue: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   statLabel: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   highPriorityCard: {
@@ -265,7 +267,7 @@ const styles = StyleSheet.create({
     color: '#991b1b',
   },
   categoryCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -284,12 +286,12 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   categoryRate: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressBar: {
     height: 8,
@@ -300,10 +302,10 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   categoryStats: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });
