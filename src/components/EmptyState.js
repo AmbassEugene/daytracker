@@ -2,8 +2,8 @@ import { StyleSheet, View, Text } from 'react-native';
 import { COLORS } from '../constants';
 
 export default function EmptyState({
-  message = 'No tasks yet!',
-  subMessage = 'Tap the + button to add your first task'
+  message = 'No goals yet!',
+  subMessage = 'Tap the + button to add your first goal'
 }) {
   return (
     <View style={styles.emptyState}>

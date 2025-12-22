@@ -1,50 +1,131 @@
 import { memo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { PRIORITY_COLORS, COLORS } from '../constants';
+import { PRIORITY_COLORS, COLORS, CATEGORY_MAP } from '../constants';
 
-const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => (
-  <View style={[styles.taskItem, task.completed && styles.taskItemCompleted]}>
-    <TouchableOpacity
-      style={styles.taskContent}
-      onPress={() => onToggle(task.id)}
-    >
-      <View style={styles.taskHeader}>
-        <View style={styles.taskInfo}>
-          <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
-            {task.description}
-          </Text>
-          {task.purpose ? (
-            <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
-          ) : null}
-        </View>
-        <View style={styles.taskMeta}>
-          <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
-            <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
-          </View>
-          {task.isRepeating && (
-            <View style={styles.repeatingBadge}>
-              <Text style={styles.repeatingText}>Daily</Text>
+const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
+  const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
+  const showStreakInfo = task.isRepeating && (task.currentStreak > 0 || task.longestStreak > 0);
+  const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
+
+  // Check if task is overdue
+  const isOverdue = () => {
+    if (!task.dueDate || task.completed) return false;
+
+    const now = new Date();
+    const dueDateTime = new Date(task.dueDate);
+
+    if (task.dueTime) {
+      const [hours, minutes] = task.dueTime.split(':');
+      dueDateTime.setHours(parseInt(hours), parseInt(minutes));
+      return now > dueDateTime;
+    }
+
+    dueDateTime.setHours(23, 59, 59);
+    return now > dueDateTime;
+  };
+
+  // Format due date display
+  const formatDueDate = () => {
+    if (!task.dueDate) return null;
+
+    const dueDateTime = new Date(task.dueDate);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const isToday = dueDateTime.toDateString() === today.toDateString();
+    const isTomorrow = dueDateTime.toDateString() === tomorrow.toDateString();
+
+    if (isToday) return 'Today';
+    if (isTomorrow) return 'Tomorrow';
+
+    const options = { month: 'short', day: 'numeric' };
+    return dueDateTime.toLocaleDateString('en-US', options);
+  };
+
+  const taskIsOverdue = isOverdue();
+  const dueDateDisplay = formatDueDate();
+
+  return (
+    <View style={[styles.taskItem, task.completed && styles.taskItemCompleted]}>
+      <TouchableOpacity
+        style={styles.taskContent}
+        onPress={() => onToggle(task.id)}
+      >
+        <View style={styles.taskHeader}>
+          <View style={styles.taskInfo}>
+            <View style={styles.descriptionRow}>
+              <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
+                {task.description}
+              </Text>
+              {categoryInfo && (
+                <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
+                  <Text style={styles.categoryText}>{categoryInfo.label}</Text>
+                </View>
+              )}
             </View>
-          )}
+            {task.purpose ? (
+              <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
+            ) : null}
+            {showStreakInfo && (
+              <View style={styles.streakContainer}>
+                {hasActiveStreak && (
+                  <View style={styles.currentStreakBadge}>
+                    <Text style={styles.streakIcon}>🔥</Text>
+                    <Text style={styles.streakText}>{task.currentStreak} day streak</Text>
+                  </View>
+                )}
+                {task.longestStreak > 0 && (
+                  <Text style={styles.longestStreakText}>
+                    Best: {task.longestStreak} days
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+          <View style={styles.taskMeta}>
+            {dueDateDisplay && (
+              <View style={[
+                styles.dueDateBadge,
+                taskIsOverdue && styles.dueDateBadgeOverdue
+              ]}>
+                <Text style={[
+                  styles.dueDateText,
+                  taskIsOverdue && styles.dueDateTextOverdue
+                ]}>
+                  {taskIsOverdue && '⚠️ '}{dueDateDisplay}
+                  {task.dueTime && ` ${task.dueTime}`}
+                </Text>
+              </View>
+            )}
+            <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
+              <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
+            </View>
+            {task.isRepeating && (
+              <View style={styles.repeatingBadge}>
+                <Text style={styles.repeatingText}>Daily</Text>
+              </View>
+            )}
+          </View>
         </View>
+      </TouchableOpacity>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => onEdit(task)}
+        >
+          <Text style={styles.editButtonText}>✎</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => onDelete(task.id)}
+        >
+          <Text style={styles.deleteButtonText}>×</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
-    <View style={styles.actionButtons}>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => onEdit(task)}
-      >
-        <Text style={styles.editButtonText}>✎</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => onDelete(task.id)}
-      >
-        <Text style={styles.deleteButtonText}>×</Text>
-      </TouchableOpacity>
     </View>
-  </View>
-));
+  );
+});
 
 export default TaskItem;
 
@@ -77,11 +158,28 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
+  descriptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 4,
+  },
   taskDescription: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.textPrimary,
-    marginBottom: 4,
+  },
+  categoryBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  categoryText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   taskTextCompleted: {
     textDecorationLine: 'line-through',
@@ -117,6 +215,25 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
+  dueDateBadge: {
+    backgroundColor: '#e0f2fe',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  dueDateBadgeOverdue: {
+    backgroundColor: '#fee2e2',
+  },
+  dueDateText: {
+    color: '#0369a1',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  dueDateTextOverdue: {
+    color: '#dc2626',
+    fontWeight: '700',
+  },
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
@@ -147,5 +264,35 @@ const styles = StyleSheet.create({
     color: COLORS.error,
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  streakContainer: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  currentStreakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff7ed',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
+  },
+  streakIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  streakText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ea580c',
+  },
+  longestStreakText: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
   },
 });

@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import TaskItem from './TaskItem';
 import EmptyState from './EmptyState';
 
@@ -8,8 +8,8 @@ export default function TaskList({ tasks, onToggle, onEdit, onDelete }) {
   }
 
   return (
-    <ScrollView style={styles.taskList}>
-      {tasks.map(task => (
+    <ScrollView style={styles.container} contentContainerStyle={styles.taskList}>
+      {tasks.map((task) => (
         <TaskItem
           key={task.id}
           task={task}
@@ -23,8 +23,10 @@ export default function TaskList({ tasks, onToggle, onEdit, onDelete }) {
 }
 
 const styles = StyleSheet.create({
-  taskList: {
+  container: {
     flex: 1,
+  },
+  taskList: {
     padding: 16,
   },
 });

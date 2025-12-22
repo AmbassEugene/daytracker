@@ -1,4 +1,4 @@
-// Priority colors for task categorization
+// Priority colors for goal categorization
 export const PRIORITY_COLORS = {
   high: '#ef4444',
   medium: '#f59e0b',
@@ -7,12 +7,12 @@ export const PRIORITY_COLORS = {
 
 // AsyncStorage keys
 export const STORAGE_KEYS = {
-  TASKS: 'daytracker_tasks',
+  TASKS: 'daytracker_goals',
   LAST_RESET: 'last_reset_date',
 };
 
-// Theme colors
-export const COLORS = {
+// Theme colors - Light mode
+export const LIGHT_COLORS = {
   primary: '#3b82f6',
   background: '#f9fafb',
   white: '#ffffff',
@@ -22,7 +22,27 @@ export const COLORS = {
   border: '#e5e7eb',
   error: '#dc2626',
   errorLight: '#fee2e2',
+  cardBackground: '#ffffff',
+  modalBackground: '#f9fafb',
 };
+
+// Theme colors - Dark mode
+export const DARK_COLORS = {
+  primary: '#60a5fa',
+  background: '#111827',
+  white: '#1f2937',
+  textPrimary: '#f9fafb',
+  textSecondary: '#d1d5db',
+  textTertiary: '#9ca3af',
+  border: '#374151',
+  error: '#f87171',
+  errorLight: '#7f1d1d',
+  cardBackground: '#1f2937',
+  modalBackground: '#111827',
+};
+
+// Default to light colors (will be overridden by theme context)
+export const COLORS = LIGHT_COLORS;
 
 // Priority order for sorting
 export const PRIORITY_ORDER = {
@@ -30,3 +50,19 @@ export const PRIORITY_ORDER = {
   medium: 1,
   low: 2,
 };
+
+// Categories with colors
+export const CATEGORIES = [
+  { id: 'work', label: 'Work', color: '#3b82f6' },
+  { id: 'personal', label: 'Personal', color: '#8b5cf6' },
+  { id: 'health', label: 'Health', color: '#10b981' },
+  { id: 'finance', label: 'Finance', color: '#f59e0b' },
+  { id: 'learning', label: 'Learning', color: '#06b6d4' },
+  { id: 'social', label: 'Social', color: '#ec4899' },
+  { id: 'other', label: 'Other', color: '#6b7280' },
+];
+
+export const CATEGORY_MAP = CATEGORIES.reduce((acc, cat) => {
+  acc[cat.id] = cat;
+  return acc;
+}, {});

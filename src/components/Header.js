@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { COLORS } from '../constants';
 
-export default function Header({ title = 'DayTracker', subtitle = 'Keep track of your daily tasks' }) {
+export default function Header({ title = 'DayTracker', subtitle = 'Track your goals and build winning streaks' }) {
   return (
     <View style={styles.header}>
       <Text style={styles.title}>{title}</Text>
