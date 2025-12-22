@@ -230,24 +230,24 @@ const getStyles = (colors) => StyleSheet.create({
   },
   highPriorityCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#ef4444',
+    borderLeftColor: colors.error,
   },
   mediumPriorityCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#f59e0b',
+    borderLeftColor: colors.warning,
   },
   lowPriorityCard: {
     borderLeftWidth: 4,
-    borderLeftColor: '#10b981',
+    borderLeftColor: colors.success,
   },
   alertCard: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: colors.alertBackground,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     borderLeftWidth: 4,
-    borderLeftColor: '#dc2626',
+    borderLeftColor: colors.alertBorder,
   },
   alertIcon: {
     fontSize: 32,
@@ -259,12 +259,12 @@ const getStyles = (colors) => StyleSheet.create({
   alertTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#dc2626',
+    color: colors.alertBorder,
     marginBottom: 4,
   },
   alertText: {
     fontSize: 14,
-    color: '#991b1b',
+    color: colors.alertText,
   },
   categoryCard: {
     backgroundColor: colors.white,
@@ -295,7 +295,7 @@ const getStyles = (colors) => StyleSheet.create({
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.progressBackground,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,

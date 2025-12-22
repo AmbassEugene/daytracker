@@ -29,7 +29,7 @@ const getStyles = (colors) => StyleSheet.create({
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: '#d1d5db',
+    color: colors.textTertiary,
     marginTop: 8,
   },
 });

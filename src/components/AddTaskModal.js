@@ -209,8 +209,8 @@ export default function AddTaskModal({ visible, onClose, onSubmit, editingTask =
               <Switch
                 value={isRepeating}
                 onValueChange={setIsRepeating}
-                trackColor={{ false: '#d1d5db', true: '#60a5fa' }}
-                thumbColor={isRepeating ? colors.primary : '#f3f4f6'}
+                trackColor={{ false: colors.textTertiary, true: colors.primary }}
+                thumbColor={isRepeating ? colors.primary : colors.buttonBackground}
               />
             </View>
 
@@ -301,10 +301,10 @@ const getStyles = (colors) => StyleSheet.create({
     color: colors.textPrimary,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.buttonBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -320,12 +320,12 @@ const getStyles = (colors) => StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textSecondary,
     marginBottom: 8,
     marginTop: 12,
   },
   input: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.inputBackground,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
@@ -419,7 +419,7 @@ const getStyles = (colors) => StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.buttonBackground,
   },
   cancelButtonText: {
     color: colors.textSecondary,

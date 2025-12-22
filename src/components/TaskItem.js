@@ -208,33 +208,33 @@ const getStyles = (colors) => StyleSheet.create({
     fontWeight: 'bold',
   },
   repeatingBadge: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: colors.badgeBlue,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   repeatingText: {
-    color: '#1e40af',
+    color: colors.badgeBlueText,
     fontSize: 10,
     fontWeight: '600',
   },
   dueDateBadge: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: colors.badgeCyan,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
     marginBottom: 6,
   },
   dueDateBadgeOverdue: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: colors.errorLight,
   },
   dueDateText: {
-    color: '#0369a1',
+    color: colors.badgeCyanText,
     fontSize: 10,
     fontWeight: '600',
   },
   dueDateTextOverdue: {
-    color: '#dc2626',
+    color: colors.error,
     fontWeight: '700',
   },
   actionButtons: {
@@ -243,10 +243,10 @@ const getStyles = (colors) => StyleSheet.create({
     marginLeft: 12,
   },
   editButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#dbeafe',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.editButtonBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -256,10 +256,10 @@ const getStyles = (colors) => StyleSheet.create({
     fontWeight: 'bold',
   },
   deleteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.errorLight,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.deleteButtonBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -277,12 +277,12 @@ const getStyles = (colors) => StyleSheet.create({
   currentStreakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff7ed',
+    backgroundColor: colors.badgeOrange,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#fed7aa',
+    borderColor: colors.badgeOrangeBorder,
   },
   streakIcon: {
     fontSize: 14,
@@ -291,7 +291,7 @@ const getStyles = (colors) => StyleSheet.create({
   streakText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ea580c',
+    color: colors.badgeOrangeText,
   },
   longestStreakText: {
     fontSize: 11,

@@ -173,10 +173,10 @@ const getStyles = (colors) => StyleSheet.create({
     color: colors.textPrimary,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.buttonBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -218,7 +218,7 @@ const getStyles = (colors) => StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.buttonBackground,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -252,7 +252,7 @@ const getStyles = (colors) => StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.buttonBackground,
     alignItems: 'center',
   },
   themeButtonActive: {
@@ -264,6 +264,6 @@ const getStyles = (colors) => StyleSheet.create({
     color: colors.textSecondary,
   },
   themeButtonTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
 });
