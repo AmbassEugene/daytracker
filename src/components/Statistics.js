@@ -80,7 +80,7 @@ export default function Statistics({ tasks }) {
       </View>
 
       <Text style={styles.sectionTitle}>Daily Goals</Text>
-      <View style={styles.statsRow}>
+      <View style={styles.statsGrid}>
         <View style={styles.statCard}>
           <Text style={styles.statValue}>{dailyGoals.length}</Text>
           <Text style={styles.statLabel}>Total Daily Goals</Text>
