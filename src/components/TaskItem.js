@@ -27,12 +27,12 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggl
     const subtask = subtasks.find(st => st.id === subtaskId);
     if (!subtask) return;
 
-    // Toggle the subtask
-    onToggleSubtask(task.id, subtaskId);
-
     // Check if this was the last incomplete subtask and it's now being completed
     const wasLastIncomplete = !subtask.completed &&
       subtasks.filter(st => !st.completed).length === 1;
+
+    // Toggle the subtask FIRST
+    onToggleSubtask(task.id, subtaskId);
 
     // If parent is not completed and all subtasks will be complete, prompt
     if (wasLastIncomplete && !task.completed) {
@@ -51,7 +51,7 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggl
             },
           ]
         );
-      }, 100); // Small delay to let the UI update first
+      }, 300); // Longer delay to ensure state updates
     }
   };
 
