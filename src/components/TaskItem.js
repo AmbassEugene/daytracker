@@ -31,27 +31,35 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggl
     const wasLastIncomplete = !subtask.completed &&
       subtasks.filter(st => !st.completed).length === 1;
 
-    // Toggle the subtask FIRST
-    onToggleSubtask(task.id, subtaskId);
-
-    // If parent is not completed and all subtasks will be complete, prompt
+    // If parent is not completed and all subtasks will be complete, prompt FIRST
     if (wasLastIncomplete && !task.completed) {
-      setTimeout(() => {
-        Alert.alert(
-          'All Subtasks Complete!',
-          'Mark parent task as done too?',
-          [
-            {
-              text: 'No, keep it open',
-              style: 'cancel',
+      Alert.alert(
+        'All Subtasks Complete!',
+        'Mark parent task as done too?',
+        [
+          {
+            text: 'No, keep it open',
+            style: 'cancel',
+            onPress: () => {
+              // User said no, just toggle the subtask
+              onToggleSubtask(task.id, subtaskId);
+            }
+          },
+          {
+            text: 'Yes, complete it',
+            onPress: () => {
+              // Toggle subtask AND parent together
+              onToggleSubtask(task.id, subtaskId);
+              // Small delay to let subtask update first
+              setTimeout(() => onToggle(task.id), 100);
             },
-            {
-              text: 'Yes, complete it',
-              onPress: () => onToggle(task.id),
-            },
-          ]
-        );
-      }, 300); // Longer delay to ensure state updates
+          },
+        ],
+        { cancelable: false } // Prevent dismissing without choosing
+      );
+    } else {
+      // Not the last subtask, just toggle normally
+      onToggleSubtask(task.id, subtaskId);
     }
   };
 
