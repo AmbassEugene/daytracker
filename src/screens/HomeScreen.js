@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, Pressable, Text, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Header from '../components/Header';
@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [statsModalVisible, setStatsModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask } = useTaskManager();
@@ -118,26 +119,56 @@ export default function HomeScreen() {
         onDelete={deleteTask}
       />
 
-      <TouchableOpacity
-        style={styles.addButton}
+      {menuVisible && (
+        <View style={styles.menuContainer}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.menuButton,
+              pressed && { backgroundColor: colors.buttonBackground }
+            ]}
+            onPress={() => {
+              setStatsModalVisible(true);
+              setMenuVisible(false);
+            }}
+          >
+            <Text style={styles.menuButtonIcon}>📊</Text>
+            <Text style={styles.menuButtonText}>Statistics</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.menuButton,
+              pressed && { backgroundColor: colors.buttonBackground }
+            ]}
+            onPress={() => {
+              setSettingsModalVisible(true);
+              setMenuVisible(false);
+            }}
+          >
+            <Text style={styles.menuButtonIcon}>⚙️</Text>
+            <Text style={styles.menuButtonText}>Settings</Text>
+          </Pressable>
+        </View>
+      )}
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.addButton,
+          pressed && { opacity: 0.8, transform: [{ scale: 0.95 }] }
+        ]}
         onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      <TouchableOpacity
-        style={styles.statsButton}
-        onPress={() => setStatsModalVisible(true)}
+      <Pressable
+        style={({ pressed }) => [
+          styles.menuToggleButton,
+          pressed && { opacity: 0.8, transform: [{ scale: 0.95 }] }
+        ]}
+        onPress={() => setMenuVisible(!menuVisible)}
       >
-        <Text style={styles.statsButtonText}>📊</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.settingsButton}
-        onPress={() => setSettingsModalVisible(true)}
-      >
-        <Text style={styles.settingsButtonText}>⚙️</Text>
-      </TouchableOpacity>
+        <Text style={styles.menuToggleButtonText}>☰</Text>
+      </Pressable>
 
       <AddTaskModal
         visible={modalVisible}
@@ -194,63 +225,77 @@ const getStyles = (colors) => StyleSheet.create({
   filterButtonTextActive: {
     color: colors.white,
   },
+  menuContainer: {
+    position: 'absolute',
+    bottom: 180,
+    right: 20,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 10,
+    minWidth: 160,
+  },
+  menuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  menuButtonIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  menuButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
   addButton: {
     position: 'absolute',
-    bottom: 30,
-    right: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: 50,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 12,
   },
   addButtonText: {
     color: colors.white,
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '300',
+    lineHeight: 36,
   },
-  statsButton: {
+  menuToggleButton: {
     position: 'absolute',
-    bottom: 100,
-    right: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.statsButtonBg,
+    bottom: 130,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 8,
   },
-  statsButtonText: {
-    fontSize: 28,
-  },
-  settingsButton: {
-    position: 'absolute',
-    bottom: 170,
-    right: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.settingsButtonBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  settingsButtonText: {
-    fontSize: 28,
+  menuToggleButtonText: {
+    color: colors.textPrimary,
+    fontSize: 24,
+    fontWeight: '300',
   },
 });

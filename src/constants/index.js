@@ -5,6 +5,20 @@ export const PRIORITY_COLORS = {
   low: '#10b981',
 };
 
+// Priority background colors (light tints for card backgrounds)
+export const PRIORITY_BACKGROUNDS = {
+  light: {
+    high: '#fef2f2',      // Very light red
+    medium: '#fffbeb',    // Very light amber
+    low: '#f0fdf4',       // Very light green
+  },
+  dark: {
+    high: '#7f1d1d',      // Dark red
+    medium: '#78350f',    // Dark amber
+    low: '#064e3b',       // Dark green
+  },
+};
+
 // AsyncStorage keys
 export const STORAGE_KEYS = {
   TASKS: 'daytracker_goals',
@@ -45,7 +59,8 @@ export const TYPOGRAPHY = {
 
 // Design System - Button Sizes (Accessibility compliant)
 export const BUTTON_SIZES = {
-  small: { width: 44, height: 44 },
+  compact: { width: 36, height: 36 },  // For card action buttons
+  small: { width: 44, height: 44 },    // Minimum accessible size
   medium: { width: 56, height: 56 },
   large: { width: 60, height: 60 },
 };

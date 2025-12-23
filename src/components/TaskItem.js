@@ -1,11 +1,14 @@
 import { memo } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { PRIORITY_COLORS, CATEGORY_MAP } from '../constants';
+import { StyleSheet, View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { PRIORITY_COLORS, PRIORITY_BACKGROUNDS, CATEGORY_MAP } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
+import { useTheme } from '../contexts/ThemeContext';
 
 const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
   const colors = useThemeColors();
-  const styles = getStyles(colors);
+  const { isDark } = useTheme();
+  const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][task.priority];
+  const styles = getStyles(colors, priorityBgColor);
   const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
   const showStreakInfo = task.isRepeating && (task.currentStreak > 0 || task.longestStreak > 0);
   const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
@@ -27,23 +30,62 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
     return now > dueDateTime;
   };
 
-  // Format due date display
+  // Format due date display as countdown
   const formatDueDate = () => {
     if (!task.dueDate) return null;
 
     const dueDateTime = new Date(task.dueDate);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const now = new Date();
 
-    const isToday = dueDateTime.toDateString() === today.toDateString();
-    const isTomorrow = dueDateTime.toDateString() === tomorrow.toDateString();
+    // Set time for due date if it has dueTime
+    if (task.dueTime) {
+      const [hours, minutes] = task.dueTime.split(':');
+      dueDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    } else {
+      // If no time, set to end of day
+      dueDateTime.setHours(23, 59, 59, 999);
+    }
 
-    if (isToday) return 'Today';
-    if (isTomorrow) return 'Tomorrow';
+    const diffMs = dueDateTime - now;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-    const options = { month: 'short', day: 'numeric' };
-    return dueDateTime.toLocaleDateString('en-US', options);
+    // Past due
+    if (diffMs < 0) {
+      const absDays = Math.abs(diffDays);
+      if (absDays === 0) return 'Today';
+      if (absDays === 1) return 'Yesterday';
+      return `${absDays} days ago`;
+    }
+
+    // Future
+    if (diffDays === 0) {
+      if (diffHours === 0) {
+        if (diffMinutes <= 1) return 'in 1 min';
+        return `in ${diffMinutes} mins`;
+      }
+      if (diffHours === 1) return 'in 1 hour';
+      return `in ${diffHours} hours`;
+    }
+
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays < 7) return `in ${diffDays} days`;
+
+    const weeks = Math.floor(diffDays / 7);
+    if (weeks === 1) return 'in 1 week';
+    if (weeks < 4) return `in ${weeks} weeks`;
+
+    const months = Math.floor(diffDays / 30);
+    if (months === 1) return 'in 1 month';
+    if (months < 12) return `in ${months} months`;
+
+    const years = Math.floor(diffDays / 365);
+    if (years === 1) return 'in 1 year';
+    if (years > 1) return `in ${years} years`;
+
+    // Fallback - shouldn't reach here, but return null just in case
+    return null;
   };
 
   const taskIsOverdue = isOverdue();
@@ -55,76 +97,83 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
         style={styles.taskContent}
         onPress={() => onToggle(task.id)}
       >
-        <View style={styles.taskHeader}>
-          <View style={styles.taskInfo}>
-            <View style={styles.descriptionRow}>
-              <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
-                {task.description}
-              </Text>
+        <View style={styles.taskInfo}>
+          <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
+            {task.description}
+          </Text>
+          {task.purpose ? (
+            <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
+          ) : null}
+
+          {/* Row 1: Streak + Due Date */}
+          {(showStreakInfo || dueDateDisplay) && (
+            <View style={styles.badgeRow}>
+              {hasActiveStreak && (
+                <View style={styles.currentStreakBadge}>
+                  <Text style={styles.streakIcon}>🔥</Text>
+                  <Text style={styles.streakText}>{task.currentStreak} day streak</Text>
+                </View>
+              )}
+              {task.longestStreak > 0 && !hasActiveStreak && (
+                <Text style={styles.longestStreakText}>
+                  Best: {task.longestStreak} days
+                </Text>
+              )}
+              {dueDateDisplay && (
+                <View style={[
+                  styles.dueDateBadge,
+                  taskIsOverdue && styles.dueDateBadgeOverdue
+                ]}>
+                  <Text style={[
+                    styles.dueDateText,
+                    taskIsOverdue && styles.dueDateTextOverdue
+                  ]}>
+                    {taskIsOverdue && '⚠️ '}{dueDateDisplay}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Row 2: Priority + Category + Daily tag */}
+          {(categoryInfo || task.isRepeating || task.priority) && (
+            <View style={styles.badgeRow}>
+              <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
+                <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
+              </View>
               {categoryInfo && (
                 <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
                   <Text style={styles.categoryText}>{categoryInfo.label}</Text>
                 </View>
               )}
+              {task.isRepeating && (
+                <View style={styles.repeatingBadge}>
+                  <Text style={styles.repeatingText}>Daily</Text>
+                </View>
+              )}
             </View>
-            {task.purpose ? (
-              <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
-            ) : null}
-            {showStreakInfo && (
-              <View style={styles.streakContainer}>
-                {hasActiveStreak && (
-                  <View style={styles.currentStreakBadge}>
-                    <Text style={styles.streakIcon}>🔥</Text>
-                    <Text style={styles.streakText}>{task.currentStreak} day streak</Text>
-                  </View>
-                )}
-                {task.longestStreak > 0 && (
-                  <Text style={styles.longestStreakText}>
-                    Best: {task.longestStreak} days
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-          <View style={styles.taskMeta}>
-            {dueDateDisplay && (
-              <View style={[
-                styles.dueDateBadge,
-                taskIsOverdue && styles.dueDateBadgeOverdue
-              ]}>
-                <Text style={[
-                  styles.dueDateText,
-                  taskIsOverdue && styles.dueDateTextOverdue
-                ]}>
-                  {taskIsOverdue && '⚠️ '}{dueDateDisplay}
-                  {task.dueTime && ` ${task.dueTime}`}
-                </Text>
-              </View>
-            )}
-            <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
-              <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
-            </View>
-            {task.isRepeating && (
-              <View style={styles.repeatingBadge}>
-                <Text style={styles.repeatingText}>Daily</Text>
-              </View>
-            )}
-          </View>
+          )}
         </View>
       </TouchableOpacity>
       <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => onEdit(task)}
-        >
-          <Text style={styles.editButtonText}>✎</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
+        <Pressable
+          style={({ pressed }) => [
+            styles.deleteButton,
+            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+          ]}
           onPress={() => onDelete(task.id)}
         >
           <Text style={styles.deleteButtonText}>×</Text>
-        </TouchableOpacity>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
+            styles.editButton,
+            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+          ]}
+          onPress={() => onEdit(task)}
+        >
+          <Text style={styles.editButtonText}>✎</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -132,41 +181,29 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
 
 export default TaskItem;
 
-const getStyles = (colors) => StyleSheet.create({
+const getStyles = (colors, priorityBgColor) => StyleSheet.create({
   taskItem: {
-    backgroundColor: colors.white,
+    backgroundColor: priorityBgColor,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 16,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   taskItemCompleted: {
     opacity: 0.6,
   },
   taskContent: {
     flex: 1,
-  },
-  taskHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    marginRight: 12,
   },
   taskInfo: {
     flex: 1,
-    marginRight: 12,
-  },
-  descriptionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 4,
   },
   taskDescription: {
     fontSize: 16,
@@ -192,15 +229,19 @@ const getStyles = (colors) => StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 4,
+    marginBottom: 8,
   },
-  taskMeta: {
-    alignItems: 'flex-end',
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
   },
   priorityBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    marginBottom: 6,
   },
   priorityText: {
     color: colors.white,
@@ -223,7 +264,6 @@ const getStyles = (colors) => StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    marginBottom: 6,
   },
   dueDateBadgeOverdue: {
     backgroundColor: colors.errorLight,
@@ -238,41 +278,34 @@ const getStyles = (colors) => StyleSheet.create({
     fontWeight: '700',
   },
   actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    marginLeft: 12,
+    flexDirection: 'column',
+    gap: 10,
   },
   editButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.editButtonBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   editButtonText: {
     color: colors.primary,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   deleteButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.deleteButtonBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteButtonText: {
     color: colors.error,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-  },
-  streakContainer: {
-    marginTop: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
   },
   currentStreakBadge: {
     flexDirection: 'row',
