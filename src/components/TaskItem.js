@@ -1,10 +1,12 @@
-import { memo } from 'react';
-import { StyleSheet, View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { memo, useState } from 'react';
+import { StyleSheet, View, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
 import { PRIORITY_COLORS, PRIORITY_BACKGROUNDS, CATEGORY_MAP } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
+import SubtaskList from './SubtaskList';
+import SubtaskInput from './SubtaskInput';
 
-const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
+const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
   const { isDark } = useTheme();
   const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][task.priority];
@@ -12,6 +14,46 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
   const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
   const showStreakInfo = task.isRepeating && (task.currentStreak > 0 || task.longestStreak > 0);
   const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Calculate subtask progress
+  const subtasks = task.subtasks || [];
+  const completedSubtasks = subtasks.filter(st => st.completed).length;
+  const hasSubtasks = subtasks.length > 0;
+
+  // Handle subtask toggle with auto-complete prompt
+  const handleToggleSubtask = (subtaskId) => {
+    // Find the subtask being toggled
+    const subtask = subtasks.find(st => st.id === subtaskId);
+    if (!subtask) return;
+
+    // Toggle the subtask
+    onToggleSubtask(task.id, subtaskId);
+
+    // Check if this was the last incomplete subtask and it's now being completed
+    const wasLastIncomplete = !subtask.completed &&
+      subtasks.filter(st => !st.completed).length === 1;
+
+    // If parent is not completed and all subtasks will be complete, prompt
+    if (wasLastIncomplete && !task.completed) {
+      setTimeout(() => {
+        Alert.alert(
+          'All Subtasks Complete!',
+          'Mark parent task as done too?',
+          [
+            {
+              text: 'No, keep it open',
+              style: 'cancel',
+            },
+            {
+              text: 'Yes, complete it',
+              onPress: () => onToggle(task.id),
+            },
+          ]
+        );
+      }, 100); // Small delay to let the UI update first
+    }
+  };
 
   // Check if task is overdue
   const isOverdue = () => {
@@ -95,7 +137,8 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
     <View style={[styles.taskItem, task.completed && styles.taskItemCompleted]}>
       <TouchableOpacity
         style={styles.taskContent}
-        onPress={() => onToggle(task.id)}
+        onPress={() => setIsExpanded(!isExpanded)}
+        onLongPress={() => onToggle(task.id)}
       >
         <View style={styles.taskInfo}>
           <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
@@ -105,8 +148,8 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
             <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
           ) : null}
 
-          {/* Row 1: Streak + Due Date */}
-          {(showStreakInfo || dueDateDisplay) && (
+          {/* Row 1: Streak + Subtasks + Due Date */}
+          {(showStreakInfo || hasSubtasks || dueDateDisplay) && (
             <View style={styles.badgeRow}>
               {hasActiveStreak && (
                 <View style={styles.currentStreakBadge}>
@@ -118,6 +161,14 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
                 <Text style={styles.longestStreakText}>
                   Best: {task.longestStreak} days
                 </Text>
+              )}
+              {hasSubtasks && (
+                <View style={styles.subtaskProgressBadge}>
+                  <Text style={styles.subtaskProgressIcon}>✓</Text>
+                  <Text style={styles.subtaskProgressText}>
+                    {completedSubtasks}/{subtasks.length}
+                  </Text>
+                </View>
               )}
               {dueDateDisplay && (
                 <View style={[
@@ -152,6 +203,21 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete }) => {
                 </View>
               )}
             </View>
+          )}
+
+          {/* Subtasks - shown when expanded */}
+          {isExpanded && (
+            <>
+              <SubtaskList
+                subtasks={subtasks}
+                onToggle={handleToggleSubtask}
+                onDelete={(subtaskId) => onDeleteSubtask(task.id, subtaskId)}
+              />
+              <SubtaskInput
+                onAdd={(description) => onAddSubtask(task.id, description)}
+                placeholder="+ Add subtask"
+              />
+            </>
           )}
         </View>
       </TouchableOpacity>
@@ -276,6 +342,25 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
   dueDateTextOverdue: {
     color: colors.error,
     fontWeight: '700',
+  },
+  subtaskProgressBadge: {
+    backgroundColor: colors.badgeCyan,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  subtaskProgressIcon: {
+    color: colors.badgeCyanText,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  subtaskProgressText: {
+    color: colors.badgeCyanText,
+    fontSize: 10,
+    fontWeight: '600',
   },
   actionButtons: {
     flexDirection: 'column',

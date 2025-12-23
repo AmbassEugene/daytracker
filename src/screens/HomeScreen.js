@@ -20,7 +20,7 @@ export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask } = useTaskManager();
+  const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useTaskManager();
   const colors = useThemeColors();
   const { isDark } = useTheme();
 
@@ -117,6 +117,9 @@ export default function HomeScreen() {
         onToggle={toggleTask}
         onEdit={handleEditTask}
         onDelete={deleteTask}
+        onAddSubtask={addSubtask}
+        onToggleSubtask={toggleSubtask}
+        onDeleteSubtask={deleteSubtask}
       />
 
       {menuVisible && (

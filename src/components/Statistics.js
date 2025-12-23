@@ -53,6 +53,15 @@ export default function Statistics({ tasks }) {
     return now > dueDateTime;
   }).length;
 
+  // Subtask statistics
+  const totalSubtasks = tasks.reduce((sum, task) =>
+    sum + (task.subtasks?.length || 0), 0);
+  const completedSubtasks = tasks.reduce((sum, task) =>
+    sum + (task.subtasks?.filter(st => st.completed).length || 0), 0);
+  const subtaskCompletionRate = totalSubtasks > 0
+    ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+  const tasksWithSubtasks = tasks.filter(t => t.subtasks?.length > 0).length;
+
   return (
     <ScrollView
       style={styles.container}
@@ -90,6 +99,30 @@ export default function Statistics({ tasks }) {
           <Text style={styles.statLabel}>Today's Progress</Text>
         </View>
       </View>
+
+      {totalSubtasks > 0 && (
+        <>
+          <Text style={styles.sectionTitle}>Subtask Progress</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{totalSubtasks}</Text>
+              <Text style={styles.statLabel}>Total Subtasks</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{completedSubtasks}</Text>
+              <Text style={styles.statLabel}>Completed</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={[styles.statValue, styles.percentValue]}>{subtaskCompletionRate}%</Text>
+              <Text style={styles.statLabel}>Completion Rate</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{tasksWithSubtasks}</Text>
+              <Text style={styles.statLabel}>Goals with Subtasks</Text>
+            </View>
+          </View>
+        </>
+      )}
 
       <Text style={styles.sectionTitle}>Streaks</Text>
       <View style={styles.statsRow}>

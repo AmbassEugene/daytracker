@@ -20,6 +20,29 @@ export default function useTaskManager() {
 
   // Load tasks and reset daily tasks on mount
   useEffect(() => {
+    const migrateToSubtasks = async () => {
+      try {
+        const version = await AsyncStorage.getItem(STORAGE_KEYS.SCHEMA_VERSION);
+
+        if (version !== '2.0') {
+          const storedTasks = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
+          if (storedTasks) {
+            const tasks = JSON.parse(storedTasks);
+            const migratedTasks = tasks.map(task => ({
+              ...task,
+              subtasks: task.subtasks || []  // Add empty array if missing
+            }));
+
+            await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(migratedTasks));
+            await AsyncStorage.setItem(STORAGE_KEYS.SCHEMA_VERSION, '2.0');
+            console.log('Migrated tasks to schema version 2.0');
+          }
+        }
+      } catch (error) {
+        console.error('Migration error:', error);
+      }
+    };
+
     const loadTasks = async () => {
       try {
         const storedTasks = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
@@ -56,8 +79,11 @@ export default function useTaskManager() {
       }
     };
 
-    loadTasks();
-    resetDailyTasks();
+    // Run migration first, then load tasks
+    migrateToSubtasks().then(() => {
+      loadTasks();
+      resetDailyTasks();
+    });
   }, []);
 
   // Calculate streak for a task based on completion history
@@ -139,6 +165,7 @@ export default function useTaskManager() {
       currentStreak: 0,
       longestStreak: 0,
       order: maxOrder + 1,
+      subtasks: [],
     };
 
     const updatedTasks = [...tasks, newTask];
@@ -308,6 +335,102 @@ export default function useTaskManager() {
     });
   }, [tasks, isOverdue]);
 
+  // Add a subtask to a task
+  const addSubtask = useCallback((taskId, description) => {
+    if (!description || !description.trim()) {
+      return false;
+    }
+
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId) {
+        const newSubtask = {
+          id: Date.now().toString(),
+          description: description.trim(),
+          completed: false,
+          createdAt: new Date().toISOString(),
+          completedAt: null,
+        };
+        return {
+          ...task,
+          subtasks: [...(task.subtasks || []), newSubtask],
+        };
+      }
+      return task;
+    });
+
+    saveTasks(updatedTasks);
+    return true;
+  }, [tasks, saveTasks]);
+
+  // Toggle a subtask's completion status
+  const toggleSubtask = useCallback((taskId, subtaskId) => {
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId) {
+        const updatedSubtasks = (task.subtasks || []).map(subtask => {
+          if (subtask.id === subtaskId) {
+            return {
+              ...subtask,
+              completed: !subtask.completed,
+              completedAt: !subtask.completed ? new Date().toISOString() : null,
+            };
+          }
+          return subtask;
+        });
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+        };
+      }
+      return task;
+    });
+
+    saveTasks(updatedTasks);
+  }, [tasks, saveTasks]);
+
+  // Delete a subtask
+  const deleteSubtask = useCallback((taskId, subtaskId) => {
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          subtasks: (task.subtasks || []).filter(subtask => subtask.id !== subtaskId),
+        };
+      }
+      return task;
+    });
+
+    saveTasks(updatedTasks);
+  }, [tasks, saveTasks]);
+
+  // Edit a subtask's description
+  const editSubtask = useCallback((taskId, subtaskId, newDescription) => {
+    if (!newDescription || !newDescription.trim()) {
+      return false;
+    }
+
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId) {
+        const updatedSubtasks = (task.subtasks || []).map(subtask => {
+          if (subtask.id === subtaskId) {
+            return {
+              ...subtask,
+              description: newDescription.trim(),
+            };
+          }
+          return subtask;
+        });
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+        };
+      }
+      return task;
+    });
+
+    saveTasks(updatedTasks);
+    return true;
+  }, [tasks, saveTasks]);
+
   return {
     tasks: sortedTasks,
     isLoading,
@@ -316,5 +439,9 @@ export default function useTaskManager() {
     toggleTask,
     deleteTask,
     reorderTasks,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    editSubtask,
   };
 }

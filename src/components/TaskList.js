@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import TaskItem from './TaskItem';
 import EmptyState from './EmptyState';
 
-export default function TaskList({ tasks, onToggle, onEdit, onDelete }) {
+export default function TaskList({ tasks, onToggle, onEdit, onDelete, onAddSubtask, onToggleSubtask, onDeleteSubtask }) {
   if (tasks.length === 0) {
     return <EmptyState />;
   }
@@ -16,6 +16,9 @@ export default function TaskList({ tasks, onToggle, onEdit, onDelete }) {
           onToggle={onToggle}
           onEdit={onEdit}
           onDelete={onDelete}
+          onAddSubtask={onAddSubtask}
+          onToggleSubtask={onToggleSubtask}
+          onDeleteSubtask={onDeleteSubtask}
         />
       ))}
     </ScrollView>
