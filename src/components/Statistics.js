@@ -187,6 +187,7 @@ const getStyles = (colors) => StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+    marginBottom: 12,
   },
   statsRow: {
     flexDirection: 'row',
@@ -199,8 +200,8 @@ const getStyles = (colors) => StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    minWidth: '47%',
+    flexBasis: '48%',
+    flexGrow: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
