@@ -72,8 +72,7 @@
 - Smooth drag animations
 
 ### 11. Bulk actions (complete/delete selected tasks)
-- Allow user to make bulk deletion or complete tasks
-
+- Allow user to make bulk deletion or complete task
 
 ## Implementation Priority
 
