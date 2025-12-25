@@ -2,6 +2,7 @@
   "expo": {
     "name": "DayTracker",
     "slug": "DayTracker",
+    "owner": "ambasseugene",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,6 +27,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "54e52277-0fd3-494d-94ea-6e2b80e05fbb"
+      }
     }
   }
 }

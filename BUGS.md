@@ -54,8 +54,46 @@ statCard: {
 
 ---
 
+## Testing Period Bugs (Daily Usage)
+
+### How to Report Bugs During Testing:
+
+Copy this template for each new bug you find:
+
+```markdown
+### [Bug Title]
+**Date Found:** YYYY-MM-DD
+**Severity:** [Low | Medium | High | Critical]
+**Status:** Active
+**Device:** [Your device name]
+**App Version:** 1.0.0
+
+**Steps to Reproduce:**
+1.
+2.
+3.
+
+**Expected Behavior:**
+[What should happen]
+
+**Actual Behavior:**
+[What actually happens]
+
+**Screenshots/Notes:**
+[Any additional context]
+```
+
+### Daily Testing Bugs
+<!-- Add new bugs here as you find them -->
+
+---
+
 ## Bug Tracking
 
 **Legend:**
 - **Status:** Active | Shelved | In Progress | Fixed
-- **Severity:** Low | Medium | High | Critical
+- **Severity:**
+  - **Low:** Minor visual issues, typos
+  - **Medium:** Feature doesn't work as expected but has workaround
+  - **High:** Feature broken, no workaround
+  - **Critical:** App crashes or data loss
