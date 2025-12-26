@@ -4,24 +4,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import GoalImageCard from './GoalImageCard';
 import useGoalSharing from '../hooks/useGoalSharing';
 
-export default function ShareGoalModal({ visible, task, onClose }) {
+export default function ShareGoalModal({ visible, goal, onClose }) {
   const { shareGoalAsImage } = useGoalSharing();
   const viewRef = useRef(null);
 
   // Auto-share when modal becomes visible
   useEffect(() => {
-    if (visible && task && viewRef.current) {
+    if (visible && goal && viewRef.current) {
       // Small delay to ensure the view is fully rendered
       const timer = setTimeout(async () => {
-        await shareGoalAsImage(task, viewRef);
+        await shareGoalAsImage(goal, viewRef);
         onClose();
       }, 300);
 
       return () => clearTimeout(timer);
     }
-  }, [visible, task, shareGoalAsImage, onClose]);
+  }, [visible, goal, shareGoalAsImage, onClose]);
 
-  if (!task) return null;
+  if (!goal) return null;
 
   return (
     <Modal
@@ -37,7 +37,7 @@ export default function ShareGoalModal({ visible, task, onClose }) {
           {/* Hidden view that will be captured as image */}
           <View style={styles.hiddenContainer}>
             <View ref={viewRef} collapsable={false}>
-              <GoalImageCard task={task} />
+              <GoalImageCard goal={goal} />
             </View>
           </View>
 

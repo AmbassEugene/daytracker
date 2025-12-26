@@ -21,7 +21,7 @@ export default function HomeScreen() {
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [editingTask, setEditingGoal] = useState(null);
-  const [sharingTask, setSharingGoal] = useState(null);
+  const [sharingGoal, setSharingGoal] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { goals, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useGoalManager();
   const colors = useThemeColors();
@@ -30,20 +30,20 @@ export default function HomeScreen() {
   // Filter goals by category
   const filteredGoals = useMemo(() => {
     if (selectedCategory === 'all') {
-      return tasks;
+      return goals;
     }
-    return tasks.filter(task => task.category === selectedCategory);
-  }, [tasks, selectedCategory]);
+    return goals.filter(goal => goal.category === selectedCategory);
+  }, [goals, selectedCategory]);
 
-  const handleSubmitGoal = (taskData) => {
+  const handleSubmitGoal = (goalData) => {
     let success;
 
-    if (taskData.id) {
-      // Editing existing task
-      success = editTask(taskData);
+    if (goalData.id) {
+      // Editing existing goal
+      success = editGoal(goalData);
     } else {
-      // Adding new task
-      success = addTask(taskData);
+      // Adding new goal
+      success = addGoal(goalData);
     }
 
     if (success) {
@@ -52,8 +52,8 @@ export default function HomeScreen() {
     }
   };
 
-  const handleEditGoal = (task) => {
-    setEditingGoal(task);
+  const handleEditGoal = (goal) => {
+    setEditingGoal(goal);
     setModalVisible(true);
   };
 
@@ -62,8 +62,8 @@ export default function HomeScreen() {
     setEditingGoal(null);
   };
 
-  const handleShareGoal = (task) => {
-    setSharingGoal(task);
+  const handleShareGoal = (goal) => {
+    setSharingGoal(goal);
     setShareModalVisible(true);
   };
 
@@ -208,7 +208,7 @@ export default function HomeScreen() {
 
       <ShareGoalModal
         visible={shareModalVisible}
-        task={sharingTask}
+        goal={sharingGoal}
         onClose={handleCloseShareModal}
       />
     </SafeAreaView>

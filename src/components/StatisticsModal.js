@@ -25,7 +25,7 @@ export default function StatisticsModal({ visible, onClose, goals }) {
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
         </View>
-        <Statistics tasks={tasks} />
+        <Statistics goals={goals} />
       </SafeAreaView>
     </Modal>
   );

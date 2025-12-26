@@ -10,11 +10,11 @@ import SubtaskInput from './SubtaskInput';
 const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
   const { isDark } = useTheme();
-  const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][task.priority];
+  const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][goal.priority];
   const styles = getStyles(colors, priorityBgColor);
-  const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
-  const showStreakInfo = task.isRepeating && (task.currentStreak > 0 || task.longestStreak > 0);
-  const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
+  const hasActiveStreak = goal.isRepeating && goal.currentStreak > 0;
+  const showStreakInfo = goal.isRepeating && (goal.currentStreak > 0 || goal.longestStreak > 0);
+  const categoryInfo = goal.category ? CATEGORY_MAP[goal.category] : null;
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Calculate subtask progress
@@ -33,10 +33,10 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
       subtasks.filter(st => !st.completed).length === 1;
 
     // If parent is not completed and all subtasks will be complete, prompt FIRST
-    if (wasLastIncomplete && !task.completed) {
+    if (wasLastIncomplete && !goal.completed) {
       Alert.alert(
         'All Subtasks Complete!',
-        'Mark parent task as done too?',
+        'Mark parent goal as done too?',
         [
           {
             text: 'No, keep it open',
@@ -52,7 +52,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
               // Toggle subtask AND parent together
               onToggleSubtask(task.id, subgoalId);
               // Small delay to let subtask update first
-              setTimeout(() => onToggle(task.id), 100);
+              setTimeout(() => onToggle(goal.id), 100);
             },
           },
         ],
@@ -64,15 +64,15 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
     }
   };
 
-  // Check if task is overdue
+  // Check if goal is overdue
   const isOverdue = () => {
-    if (!task.dueDate || task.completed) return false;
+    if (!goal.dueDate || goal.completed) return false;
 
     const now = new Date();
-    const dueDateTime = new Date(task.dueDate);
+    const dueDateTime = new Date(goal.dueDate);
 
-    if (task.dueTime) {
-      const [hours, minutes] = task.dueTime.split(':');
+    if (goal.dueTime) {
+      const [hours, minutes] = goal.dueTime.split(':');
       dueDateTime.setHours(parseInt(hours), parseInt(minutes));
       return now > dueDateTime;
     }
@@ -83,14 +83,14 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
 
   // Format due date display as countdown
   const formatDueDate = () => {
-    if (!task.dueDate) return null;
+    if (!goal.dueDate) return null;
 
-    const dueDateTime = new Date(task.dueDate);
+    const dueDateTime = new Date(goal.dueDate);
     const now = new Date();
 
     // Set time for due date if it has dueTime
-    if (task.dueTime) {
-      const [hours, minutes] = task.dueTime.split(':');
+    if (goal.dueTime) {
+      const [hours, minutes] = goal.dueTime.split(':');
       dueDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     } else {
       // If no time, set to end of day
@@ -139,22 +139,22 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
     return null;
   };
 
-  const taskIsOverdue = isOverdue();
+  const goalIsOverdue = isOverdue();
   const dueDateDisplay = formatDueDate();
 
   return (
-    <View style={[styles.goalItem, task.completed && styles.goalItemCompleted]}>
+    <View style={[styles.goalItem, goal.completed && styles.goalItemCompleted]}>
       <TouchableOpacity
-        style={styles.taskContent}
+        style={styles.goalContent}
         onPress={() => setIsExpanded(!isExpanded)}
-        onLongPress={() => onToggle(task.id)}
+        onLongPress={() => onToggle(goal.id)}
       >
-        <View style={styles.taskInfo}>
-          <Text style={[styles.taskDescription, task.completed && styles.taskTextCompleted]}>
-            {task.description}
+        <View style={styles.goalInfo}>
+          <Text style={[styles.goalDescription, goal.completed && styles.goalTextCompleted]}>
+            {goal.description}
           </Text>
-          {task.purpose ? (
-            <Text style={styles.taskPurpose}>Purpose: {task.purpose}</Text>
+          {goal.purpose ? (
+            <Text style={styles.goalPurpose}>Purpose: {goal.purpose}</Text>
           ) : null}
 
           {/* Row 1: Streak + Subtasks + Due Date */}
@@ -163,12 +163,12 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
               {hasActiveStreak && (
                 <View style={styles.currentStreakBadge}>
                   <Text style={styles.streakIcon}>🔥</Text>
-                  <Text style={styles.streakText}>{task.currentStreak} day streak</Text>
+                  <Text style={styles.streakText}>{goal.currentStreak} day streak</Text>
                 </View>
               )}
-              {task.longestStreak > 0 && !hasActiveStreak && (
+              {goal.longestStreak > 0 && !hasActiveStreak && (
                 <Text style={styles.longestStreakText}>
-                  Best: {task.longestStreak} days
+                  Best: {goal.longestStreak} days
                 </Text>
               )}
               {hasSubtasks && (
@@ -196,17 +196,17 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
           )}
 
           {/* Row 2: Priority + Category + Daily tag */}
-          {(categoryInfo || task.isRepeating || task.priority) && (
+          {(categoryInfo || goal.isRepeating || goal.priority) && (
             <View style={styles.badgeRow}>
-              <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
-                <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
+              <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
+                <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
               </View>
               {categoryInfo && (
                 <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
                   <Text style={styles.categoryText}>{categoryInfo.label}</Text>
                 </View>
               )}
-              {task.isRepeating && (
+              {goal.isRepeating && (
                 <View style={styles.repeatingBadge}>
                   <Text style={styles.repeatingText}>Daily</Text>
                 </View>
@@ -236,7 +236,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
             styles.deleteButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
-          onPress={() => onDelete(task.id)}
+          onPress={() => onDelete(goal.id)}
         >
           <Text style={styles.deleteButtonText}>×</Text>
         </Pressable>
@@ -245,7 +245,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
             styles.editButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
-          onPress={() => onEdit(task)}
+          onPress={() => onEdit(goal)}
         >
           <Text style={styles.editButtonText}>✎</Text>
         </Pressable>
@@ -254,7 +254,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
             styles.shareButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
-          onPress={() => onShare(task)}
+          onPress={() => onShare(goal)}
         >
           <Ionicons name="share-outline" size={20} color={colors.primary} />
         </Pressable>
@@ -282,14 +282,14 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
   goalItemCompleted: {
     opacity: 0.6,
   },
-  taskContent: {
+  goalContent: {
     flex: 1,
     marginRight: 12,
   },
-  taskInfo: {
+  goalInfo: {
     flex: 1,
   },
-  taskDescription: {
+  goalDescription: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.textPrimary,
@@ -305,11 +305,11 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
   },
-  taskTextCompleted: {
+  goalTextCompleted: {
     textDecorationLine: 'line-through',
     color: colors.textTertiary,
   },
-  taskPurpose: {
+  goalPurpose: {
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 4,

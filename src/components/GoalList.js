@@ -12,7 +12,7 @@ export default function GoalList({ goals, onToggle, onEdit, onDelete, onShare, o
       {goals.map((goal) => (
         <GoalItem
           key={goal.id}
-          goal={task}
+          goal={goal}
           onToggle={onToggle}
           onEdit={onEdit}
           onDelete={onDelete}

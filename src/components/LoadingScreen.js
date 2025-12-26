@@ -2,7 +2,7 @@ import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useThemeColors from '../hooks/useThemeColors';
 
-export default function LoadingScreen({ message = 'Loading tasks...' }) {
+export default function LoadingScreen({ message = 'Loading goals...' }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
 

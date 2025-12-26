@@ -93,7 +93,7 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
   };
 
   const handleSubmit = () => {
-    const taskData = {
+    const goalData = {
       description: description.trim(),
       purpose: purpose.trim(),
       priority,
@@ -103,12 +103,12 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
       dueTime: dueTime || null,
     };
 
-    // If editing, include the task ID
+    // If editing, include the goal ID
     if (editingGoal) {
-      taskData.id = editingGoal.id;
+      goalData.id = editingGoal.id;
     }
 
-    onSubmit(taskData);
+    onSubmit(goalData);
     resetForm();
   };
 

@@ -204,7 +204,7 @@ export default function useGoalManager() {
   // Toggle goal completion
   const toggleGoal = useCallback((goalId) => {
     const updatedGoals = goals.map(goal => {
-      if (goal.id === taskId) {
+      if (goal.id === goalId) {
         const isCompleting = !goal.completed;
         const today = new Date().toDateString();
         let updatedCompletionHistory = goal.completionHistory || [];
@@ -252,7 +252,7 @@ export default function useGoalManager() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            const updatedGoals = goals.filter(goal => goal.id !== taskId);
+            const updatedGoals = goals.filter(goal => goal.id !== goalId);
             saveGoals(updatedGoals);
           },
         },
@@ -261,9 +261,9 @@ export default function useGoalManager() {
   }, [goals, saveGoals]);
 
   // Reorder goals (for drag and drop)
-  const reorderGoals = useCallback((reorderedTasks) => {
+  const reorderGoals = useCallback((reorderedGoals) => {
     // Update order field for each goal based on new position
-    const goalsWithNewOrder = reorderedTasks.map((goal, index) => ({
+    const goalsWithNewOrder = reorderedGoals.map((goal, index) => ({
       ...goal,
       order: index,
     }));
@@ -342,7 +342,7 @@ export default function useGoalManager() {
     }
 
     const updatedGoals = goals.map(goal => {
-      if (goal.id === taskId) {
+      if (goal.id === goalId) {
         const newSubgoal = {
           id: Date.now().toString(),
           description: description.trim(),
@@ -365,7 +365,7 @@ export default function useGoalManager() {
   // Toggle a subtask's completion status
   const toggleSubgoal = useCallback((goalId, subtaskId) => {
     const updatedGoals = goals.map(goal => {
-      if (goal.id === taskId) {
+      if (goal.id === goalId) {
         const updatedSubtasks = (goal.subtasks || []).map(subgoal => {
           if (subgoal.id === subtaskId) {
             return {
@@ -390,7 +390,7 @@ export default function useGoalManager() {
   // Delete a subtask
   const deleteSubgoal = useCallback((goalId, subtaskId) => {
     const updatedGoals = goals.map(goal => {
-      if (goal.id === taskId) {
+      if (goal.id === goalId) {
         return {
           ...goal,
           subtasks: (goal.subtasks || []).filter(subgoal => subgoal.id !== subtaskId),
@@ -409,7 +409,7 @@ export default function useGoalManager() {
     }
 
     const updatedGoals = goals.map(goal => {
-      if (goal.id === taskId) {
+      if (goal.id === goalId) {
         const updatedSubtasks = (goal.subtasks || []).map(subgoal => {
           if (subgoal.id === subtaskId) {
             return {

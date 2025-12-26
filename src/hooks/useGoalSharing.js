@@ -7,7 +7,7 @@ import * as FileSystem from 'expo-file-system';
 export default function useGoalSharing() {
   const viewShotRef = useRef(null);
 
-  const shareGoalAsImage = useCallback(async (task, viewRef) => {
+  const shareGoalAsImage = useCallback(async (goal, viewRef) => {
     try {
       if (!viewRef || !viewRef.current) {
         Alert.alert('Error', 'Unable to capture goal image');

@@ -1,17 +1,17 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { PRIORITY_COLORS, CATEGORY_MAP } from '../constants';
 
-export default function GoalImageCard({ task }) {
-  const categoryInfo = task.category ? CATEGORY_MAP[task.category] : null;
-  const hasActiveStreak = task.isRepeating && task.currentStreak > 0;
-  const subtasks = task.subtasks || [];
-  const completedSubtasks = subtasks.filter(st => st.completed).length;
-  const hasSubtasks = subtasks.length > 0;
+export default function GoalImageCard({ goal }) {
+  const categoryInfo = goal.category ? CATEGORY_MAP[goal.category] : null;
+  const hasActiveStreak = goal.isRepeating && goal.currentStreak > 0;
+  const subgoals = goal.subtasks || [];
+  const completedSubgoals = subgoals.filter(st => st.completed).length;
+  const hasSubgoals = subgoals.length > 0;
 
   // Format due date
   const formatDueDate = () => {
-    if (!task.dueDate) return null;
-    const date = new Date(task.dueDate);
+    if (!goal.dueDate) return null;
+    const date = new Date(goal.dueDate);
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -30,16 +30,16 @@ export default function GoalImageCard({ task }) {
       {/* Goal Content */}
       <View style={styles.content}>
         {/* Priority Badge */}
-        <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[task.priority] }]}>
-          <Text style={styles.priorityText}>{task.priority.toUpperCase()}</Text>
+        <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
+          <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
         </View>
 
         {/* Description */}
-        <Text style={styles.description}>{task.description}</Text>
+        <Text style={styles.description}>{goal.description}</Text>
 
         {/* Purpose (if exists) */}
-        {task.purpose && (
-          <Text style={styles.purpose}>Why: {task.purpose}</Text>
+        {goal.purpose && (
+          <Text style={styles.purpose}>Why: {goal.purpose}</Text>
         )}
 
         {/* Category */}
@@ -55,24 +55,24 @@ export default function GoalImageCard({ task }) {
           <View style={styles.infoRow}>
             <Text style={styles.streakEmoji}>🔥</Text>
             <Text style={styles.streakText}>
-              {task.currentStreak} day streak
-              {task.longestStreak > task.currentStreak && ` • Best: ${task.longestStreak}`}
+              {goal.currentStreak} day streak
+              {goal.longestStreak > goal.currentStreak && ` • Best: ${goal.longestStreak}`}
             </Text>
           </View>
         )}
 
         {/* Subtasks Progress */}
-        {hasSubtasks && (
+        {hasSubgoals && (
           <View style={styles.infoRow}>
             <Text style={styles.subtaskEmoji}>📝</Text>
             <Text style={styles.subtaskText}>
-              {completedSubtasks}/{subtasks.length} subtasks completed
+              {completedSubgoals}/{subgoals.length} subtasks completed
             </Text>
           </View>
         )}
 
         {/* Due Date */}
-        {task.dueDate && (
+        {goal.dueDate && (
           <View style={styles.infoRow}>
             <Text style={styles.dueDateEmoji}>📅</Text>
             <Text style={styles.dueDateText}>Due: {formatDueDate()}</Text>

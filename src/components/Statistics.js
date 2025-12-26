@@ -1,66 +1,66 @@
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 
-export default function Statistics({ tasks }) {
+export default function Statistics({ goals }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
   // Calculate statistics
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const activeTasks = totalTasks - completedTasks;
-  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const totalGoals = goals.length;
+  const completedGoals = goals.filter(g => g.completed).length;
+  const activeGoals = totalGoals - completedGoals;
+  const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
   // Daily goals stats
-  const dailyGoals = tasks.filter(t => t.isRepeating);
-  const completedDailyGoals = dailyGoals.filter(t => t.completed).length;
+  const dailyGoals = goals.filter(g => g.isRepeating);
+  const completedDailyGoals = dailyGoals.filter(g => g.completed).length;
   const dailyCompletionRate = dailyGoals.length > 0
     ? Math.round((completedDailyGoals / dailyGoals.length) * 100)
     : 0;
 
   // Streak stats
-  const activeStreaks = tasks.filter(t => t.isRepeating && t.currentStreak > 0);
+  const activeStreaks = goals.filter(g => g.isRepeating && t.currentStreak > 0);
   const longestCurrentStreak = activeStreaks.length > 0
-    ? Math.max(...activeStreaks.map(t => t.currentStreak))
+    ? Math.max(...activeStreaks.map(g => g.currentStreak))
     : 0;
-  const bestAllTimeStreak = tasks.length > 0
-    ? Math.max(...tasks.map(t => t.longestStreak || 0))
+  const bestAllTimeStreak = goals.length > 0
+    ? Math.max(...goals.map(g => g.longestStreak || 0))
     : 0;
 
   // Category breakdown
-  const categoryStats = tasks.reduce((acc, task) => {
-    const cat = task.category || 'personal';
+  const categoryStats = goals.reduce((acc, goal) => {
+    const cat = goal.category || 'personal';
     if (!acc[cat]) {
       acc[cat] = { total: 0, completed: 0 };
     }
     acc[cat].total++;
-    if (task.completed) acc[cat].completed++;
+    if (goal.completed) acc[cat].completed++;
     return acc;
   }, {});
 
   // Priority breakdown
   const priorityStats = {
-    high: tasks.filter(t => t.priority === 'high').length,
-    medium: tasks.filter(t => t.priority === 'medium').length,
-    low: tasks.filter(t => t.priority === 'low').length,
+    high: goals.filter(g => g.priority === 'high').length,
+    medium: goals.filter(g => g.priority === 'medium').length,
+    low: goals.filter(g => g.priority === 'low').length,
   };
 
   // Overdue goals
   const now = new Date();
-  const overdueTasks = tasks.filter(task => {
-    if (!task.dueDate || task.completed) return false;
-    const dueDateTime = new Date(task.dueDate);
+  const overdueGoals = goals.filter(goal => {
+    if (!goal.dueDate || goal.completed) return false;
+    const dueDateTime = new Date(goal.dueDate);
     dueDateTime.setHours(23, 59, 59);
     return now > dueDateTime;
   }).length;
 
   // Subtask statistics
-  const totalSubtasks = tasks.reduce((sum, task) =>
-    sum + (task.subtasks?.length || 0), 0);
-  const completedSubtasks = tasks.reduce((sum, task) =>
-    sum + (task.subtasks?.filter(st => st.completed).length || 0), 0);
+  const totalSubtasks = goals.reduce((sum, task) =>
+    sum + (goal.subtasks?.length || 0), 0);
+  const completedSubtasks = goals.reduce((sum, task) =>
+    sum + (goal.subtasks?.filter(st => st.completed).length || 0), 0);
   const subtaskCompletionRate = totalSubtasks > 0
     ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
-  const tasksWithSubtasks = tasks.filter(t => t.subtasks?.length > 0).length;
+  const goalsWithSubgoals = goals.filter(g => g.subtasks?.length > 0).length;
 
   return (
     <ScrollView
@@ -71,7 +71,7 @@ export default function Statistics({ tasks }) {
       <Text style={styles.sectionTitle}>Overview</Text>
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{totalTasks}</Text>
+          <Text style={styles.statValue}>{totalGoals}</Text>
           <Text style={styles.statLabel}>Total Goals</Text>
         </View>
         <View style={styles.statCard}>
@@ -79,7 +79,7 @@ export default function Statistics({ tasks }) {
           <Text style={styles.statLabel}>Active</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{completedTasks}</Text>
+          <Text style={styles.statValue}>{completedGoals}</Text>
           <Text style={styles.statLabel}>Completed</Text>
         </View>
         <View style={styles.statCard}>

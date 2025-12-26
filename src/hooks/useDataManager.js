@@ -11,14 +11,14 @@ export default function useDataManager() {
   const exportData = useCallback(async () => {
     try {
       // Get all data from AsyncStorage
-      const tasksData = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
+      const goalsData = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
       const lastResetData = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
 
       const exportObject = {
         version: '1.0',
         exportDate: new Date().toISOString(),
         data: {
-          tasks: tasksData ? JSON.parse(tasksData) : [],
+          goals: goalsData ? JSON.parse(tasksData) : [],
           lastReset: lastResetData,
         },
       };
@@ -80,10 +80,10 @@ export default function useDataManager() {
             onPress: async () => {
               try {
                 // Import tasks
-                if (importedData.data.tasks) {
+                if (importedData.data.goals) {
                   await AsyncStorage.setItem(
                     STORAGE_KEYS.GOALS,
-                    JSON.stringify(importedData.data.tasks)
+                    JSON.stringify(importedData.data.goals)
                   );
                 }
 
@@ -115,21 +115,21 @@ export default function useDataManager() {
   }, []);
 
   // Share specific tasks with others
-  const shareTasks = useCallback(async (tasksToShare) => {
+  const shareGoals = useCallback(async (goalsToShare) => {
     try {
-      if (!tasksToShare || tasksToShare.length === 0) {
-        Alert.alert('Error', 'No tasks selected to share');
+      if (!goalsToShare || goalsToShare.length === 0) {
+        Alert.alert('Error', 'No goals selected to share');
         return;
       }
 
       const shareObject = {
         version: '1.0',
         shareDate: new Date().toISOString(),
-        tasks: tasksToShare,
+        tasks: goalsToShare,
       };
 
       const jsonString = JSON.stringify(shareObject, null, 2);
-      const fileName = `daytracker-tasks-${new Date().toISOString().split('T')[0]}.json`;
+      const fileName = `daytracker-goals-${new Date().toISOString().split('T')[0]}.json`;
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
       // Write file
@@ -146,7 +146,7 @@ export default function useDataManager() {
       }
     } catch (error) {
       console.error('Share error:', error);
-      Alert.alert('Error', 'Failed to share tasks. Please try again.');
+      Alert.alert('Error', 'Failed to share goals. Please try again.');
     }
   }, []);
 
