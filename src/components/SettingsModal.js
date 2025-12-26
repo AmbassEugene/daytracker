@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, Modal, TouchableOpacity, ScrollView, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import useDataManager from '../hooks/useDataManager';
@@ -6,7 +6,7 @@ import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function SettingsModal({ visible, onClose, tasks }) {
-  const { exportData, importData, shareTasks, clearAllData } = useDataManager();
+  const { exportData, importData, clearAllData } = useDataManager();
   const colors = useThemeColors();
   const { isDark, themeMode, setTheme } = useTheme();
 
@@ -20,8 +20,16 @@ export default function SettingsModal({ visible, onClose, tasks }) {
     onClose();
   };
 
-  const handleShare = async () => {
-    await shareTasks(tasks);
+  const handleShareApp = async () => {
+    const shareMessage = "Daily goals. Real progress. Zero excuses. Start now 👉";
+
+    try {
+      await Share.share({
+        message: shareMessage,
+      });
+    } catch (error) {
+      console.error('Share app error:', error);
+    }
   };
 
   const handleClear = async () => {
@@ -74,14 +82,14 @@ export default function SettingsModal({ visible, onClose, tasks }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} onPress={handleShare}>
+          <TouchableOpacity style={styles.settingItem} onPress={handleShareApp}>
             <View style={styles.settingIcon}>
               <Text style={styles.iconText}>📲</Text>
             </View>
             <View style={styles.settingContent}>
-              <Text style={styles.settingTitle}>Share All Tasks</Text>
+              <Text style={styles.settingTitle}>Share App</Text>
               <Text style={styles.settingDescription}>
-                Share your goals with others
+                Invite friends to track their goals
               </Text>
             </View>
           </TouchableOpacity>

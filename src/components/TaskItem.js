@@ -6,7 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import SubtaskList from './SubtaskList';
 import SubtaskInput from './SubtaskInput';
 
-const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
+const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
   const { isDark } = useTheme();
   const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][task.priority];
@@ -232,6 +232,15 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onAddSubtask, onToggl
       <View style={styles.actionButtons}>
         <Pressable
           style={({ pressed }) => [
+            styles.shareButton,
+            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+          ]}
+          onPress={() => onShare(task)}
+        >
+          <Text style={styles.shareButtonText}>⤴</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
             styles.deleteButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
@@ -398,6 +407,19 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
   deleteButtonText: {
     color: colors.error,
     fontSize: 20,
+    fontWeight: 'bold',
+  },
+  shareButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.editButtonBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareButtonText: {
+    color: colors.primary,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   currentStreakBadge: {

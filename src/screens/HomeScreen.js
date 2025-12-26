@@ -7,6 +7,7 @@ import TaskList from '../components/TaskList';
 import AddTaskModal from '../components/AddTaskModal';
 import StatisticsModal from '../components/StatisticsModal';
 import SettingsModal from '../components/SettingsModal';
+import ShareGoalModal from '../components/ShareGoalModal';
 import LoadingScreen from '../components/LoadingScreen';
 import useTaskManager from '../hooks/useTaskManager';
 import useThemeColors from '../hooks/useThemeColors';
@@ -17,8 +18,10 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [statsModalVisible, setStatsModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [sharingTask, setSharingTask] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useTaskManager();
   const colors = useThemeColors();
@@ -57,6 +60,16 @@ export default function HomeScreen() {
   const handleCloseModal = () => {
     setModalVisible(false);
     setEditingTask(null);
+  };
+
+  const handleShareTask = (task) => {
+    setSharingTask(task);
+    setShareModalVisible(true);
+  };
+
+  const handleCloseShareModal = () => {
+    setShareModalVisible(false);
+    setSharingTask(null);
   };
 
   if (isLoading) {
@@ -117,6 +130,7 @@ export default function HomeScreen() {
         onToggle={toggleTask}
         onEdit={handleEditTask}
         onDelete={deleteTask}
+        onShare={handleShareTask}
         onAddSubtask={addSubtask}
         onToggleSubtask={toggleSubtask}
         onDeleteSubtask={deleteSubtask}
@@ -190,6 +204,12 @@ export default function HomeScreen() {
         visible={settingsModalVisible}
         onClose={() => setSettingsModalVisible(false)}
         tasks={tasks}
+      />
+
+      <ShareGoalModal
+        visible={shareModalVisible}
+        task={sharingTask}
+        onClose={handleCloseShareModal}
       />
     </SafeAreaView>
   );
