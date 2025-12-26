@@ -1,66 +1,91 @@
+import { useMemo } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 
 export default function Statistics({ goals }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
-  // Calculate statistics
-  const totalGoals = goals.length;
-  const completedGoals = goals.filter(g => g.completed).length;
-  const activeGoals = totalGoals - completedGoals;
-  const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
-  // Daily goals stats
-  const dailyGoals = goals.filter(g => g.isRepeating);
-  const completedDailyGoals = dailyGoals.filter(g => g.completed).length;
-  const dailyCompletionRate = dailyGoals.length > 0
-    ? Math.round((completedDailyGoals / dailyGoals.length) * 100)
-    : 0;
+  // Memoize all statistics calculations to prevent unnecessary recalculations
+  const stats = useMemo(() => {
+    // Calculate statistics
+    const totalGoals = goals.length;
+    const completedGoals = goals.filter(g => g.completed).length;
+    const activeGoals = totalGoals - completedGoals;
+    const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
-  // Streak stats
-  const activeStreaks = goals.filter(g => g.isRepeating && g.currentStreak > 0);
-  const longestCurrentStreak = activeStreaks.length > 0
-    ? Math.max(...activeStreaks.map(g => g.currentStreak))
-    : 0;
-  const bestAllTimeStreak = goals.length > 0
-    ? Math.max(...goals.map(g => g.longestStreak || 0))
-    : 0;
+    // Daily goals stats
+    const dailyGoals = goals.filter(g => g.isRepeating);
+    const completedDailyGoals = dailyGoals.filter(g => g.completed).length;
+    const dailyCompletionRate = dailyGoals.length > 0
+      ? Math.round((completedDailyGoals / dailyGoals.length) * 100)
+      : 0;
 
-  // Category breakdown
-  const categoryStats = goals.reduce((acc, goal) => {
-    const cat = goal.category || 'personal';
-    if (!acc[cat]) {
-      acc[cat] = { total: 0, completed: 0 };
-    }
-    acc[cat].total++;
-    if (goal.completed) acc[cat].completed++;
-    return acc;
-  }, {});
+    // Streak stats
+    const activeStreaks = goals.filter(g => g.isRepeating && g.currentStreak > 0);
+    const longestCurrentStreak = activeStreaks.length > 0
+      ? Math.max(...activeStreaks.map(g => g.currentStreak))
+      : 0;
+    const bestAllTimeStreak = goals.length > 0
+      ? Math.max(...goals.map(g => g.longestStreak || 0))
+      : 0;
 
-  // Priority breakdown
-  const priorityStats = {
-    high: goals.filter(g => g.priority === 'high').length,
-    medium: goals.filter(g => g.priority === 'medium').length,
-    low: goals.filter(g => g.priority === 'low').length,
-  };
+    // Category breakdown
+    const categoryStats = goals.reduce((acc, goal) => {
+      const cat = goal.category || 'personal';
+      if (!acc[cat]) {
+        acc[cat] = { total: 0, completed: 0 };
+      }
+      acc[cat].total++;
+      if (goal.completed) acc[cat].completed++;
+      return acc;
+    }, {});
 
-  // Overdue goals
-  const now = new Date();
-  const overdueGoals = goals.filter(goal => {
-    if (!goal.dueDate || goal.completed) return false;
-    const dueDateTime = new Date(goal.dueDate);
-    dueDateTime.setHours(23, 59, 59);
-    return now > dueDateTime;
-  }).length;
+    // Priority breakdown
+    const priorityStats = {
+      high: goals.filter(g => g.priority === 'high').length,
+      medium: goals.filter(g => g.priority === 'medium').length,
+      low: goals.filter(g => g.priority === 'low').length,
+    };
 
-  // Subtask statistics
-  const totalSubtasks = goals.reduce((sum, goal) =>
-    sum + (goal.subtasks?.length || 0), 0);
-  const completedSubtasks = goals.reduce((sum, goal) =>
-    sum + (goal.subtasks?.filter(st => st.completed).length || 0), 0);
-  const subtaskCompletionRate = totalSubtasks > 0
-    ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
-  const goalsWithSubgoals = goals.filter(g => g.subtasks?.length > 0).length;
+    // Overdue goals
+    const now = new Date();
+    const overdueGoals = goals.filter(goal => {
+      if (!goal.dueDate || goal.completed) return false;
+      const dueDateTime = new Date(goal.dueDate);
+      dueDateTime.setHours(23, 59, 59);
+      return now > dueDateTime;
+    }).length;
+
+    // Subtask statistics
+    const totalSubtasks = goals.reduce((sum, goal) =>
+      sum + (goal.subtasks?.length || 0), 0);
+    const completedSubtasks = goals.reduce((sum, goal) =>
+      sum + (goal.subtasks?.filter(st => st.completed).length || 0), 0);
+    const subtaskCompletionRate = totalSubtasks > 0
+      ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+    const goalsWithSubgoals = goals.filter(g => g.subtasks?.length > 0).length;
+
+    return {
+      totalGoals,
+      completedGoals,
+      activeGoals,
+      completionRate,
+      dailyGoals,
+      completedDailyGoals,
+      dailyCompletionRate,
+      activeStreaks,
+      longestCurrentStreak,
+      bestAllTimeStreak,
+      categoryStats,
+      priorityStats,
+      overdueGoals,
+      totalSubtasks,
+      completedSubtasks,
+      subtaskCompletionRate,
+      goalsWithSubgoals,
+    };
+  }, [goals]);
 
   return (
     <ScrollView
@@ -71,19 +96,19 @@ export default function Statistics({ goals }) {
       <Text style={styles.sectionTitle}>Overview</Text>
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{totalGoals}</Text>
+          <Text style={styles.statValue}>{stats.totalGoals}</Text>
           <Text style={styles.statLabel}>Total Goals</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{activeGoals}</Text>
+          <Text style={styles.statValue}>{stats.activeGoals}</Text>
           <Text style={styles.statLabel}>Active</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{completedGoals}</Text>
+          <Text style={styles.statValue}>{stats.completedGoals}</Text>
           <Text style={styles.statLabel}>Completed</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, styles.percentValue]}>{completionRate}%</Text>
+          <Text style={[styles.statValue, styles.percentValue]}>{stats.completionRate}%</Text>
           <Text style={styles.statLabel}>Completion Rate</Text>
         </View>
       </View>
@@ -91,33 +116,33 @@ export default function Statistics({ goals }) {
       <Text style={styles.sectionTitle}>Daily Goals</Text>
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{dailyGoals.length}</Text>
+          <Text style={styles.statValue}>{stats.dailyGoals.length}</Text>
           <Text style={styles.statLabel}>Total Daily Goals</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, styles.percentValue]}>{dailyCompletionRate}%</Text>
+          <Text style={[styles.statValue, styles.percentValue]}>{stats.dailyCompletionRate}%</Text>
           <Text style={styles.statLabel}>Today's Progress</Text>
         </View>
       </View>
 
-      {totalSubtasks > 0 && (
+      {stats.totalSubtasks > 0 && (
         <>
           <Text style={styles.sectionTitle}>Micro Goals Progress</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{totalSubtasks}</Text>
+              <Text style={styles.statValue}>{stats.totalSubtasks}</Text>
               <Text style={styles.statLabel}>Total Micro Goals</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{completedSubtasks}</Text>
+              <Text style={styles.statValue}>{stats.completedSubtasks}</Text>
               <Text style={styles.statLabel}>Completed</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, styles.percentValue]}>{subtaskCompletionRate}%</Text>
+              <Text style={[styles.statValue, styles.percentValue]}>{stats.subtaskCompletionRate}%</Text>
               <Text style={styles.statLabel}>Completion Rate</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{goalsWithSubgoals}</Text>
+              <Text style={styles.statValue}>{stats.goalsWithSubgoals}</Text>
               <Text style={styles.statLabel}>Goals with Micro Goals</Text>
             </View>
           </View>
@@ -127,17 +152,17 @@ export default function Statistics({ goals }) {
       <Text style={styles.sectionTitle}>Streaks</Text>
       <View style={styles.statsRow}>
         <View style={[styles.statCard, styles.wideCard]}>
-          <Text style={styles.statValue}>🔥 {longestCurrentStreak}</Text>
+          <Text style={styles.statValue}>🔥 {stats.longestCurrentStreak}</Text>
           <Text style={styles.statLabel}>Current Best Streak</Text>
         </View>
         <View style={[styles.statCard, styles.wideCard]}>
-          <Text style={styles.statValue}>⭐ {bestAllTimeStreak}</Text>
+          <Text style={styles.statValue}>⭐ {stats.bestAllTimeStreak}</Text>
           <Text style={styles.statLabel}>All-Time Best</Text>
         </View>
       </View>
       <View style={styles.statsRow}>
         <View style={[styles.statCard, styles.fullWidthCard]}>
-          <Text style={styles.statValue}>{activeStreaks.length}</Text>
+          <Text style={styles.statValue}>{stats.activeStreaks.length}</Text>
           <Text style={styles.statLabel}>Active Streaks</Text>
         </View>
       </View>
@@ -145,22 +170,22 @@ export default function Statistics({ goals }) {
       <Text style={styles.sectionTitle}>Priority Breakdown</Text>
       <View style={styles.statsRow}>
         <View style={[styles.statCard, styles.wideCard, styles.highPriorityCard]}>
-          <Text style={styles.statValue}>{priorityStats.high}</Text>
+          <Text style={styles.statValue}>{stats.priorityStats.high}</Text>
           <Text style={styles.statLabel}>High Priority</Text>
         </View>
         <View style={[styles.statCard, styles.wideCard, styles.mediumPriorityCard]}>
-          <Text style={styles.statValue}>{priorityStats.medium}</Text>
+          <Text style={styles.statValue}>{stats.priorityStats.medium}</Text>
           <Text style={styles.statLabel}>Medium Priority</Text>
         </View>
       </View>
       <View style={styles.statsRow}>
         <View style={[styles.statCard, styles.fullWidthCard, styles.lowPriorityCard]}>
-          <Text style={styles.statValue}>{priorityStats.low}</Text>
+          <Text style={styles.statValue}>{stats.priorityStats.low}</Text>
           <Text style={styles.statLabel}>Low Priority</Text>
         </View>
       </View>
 
-      {overdueGoals > 0 && (
+      {stats.overdueGoals > 0 && (
         <>
           <Text style={styles.sectionTitle}>Alerts</Text>
           <View style={styles.alertCard}>
@@ -168,18 +193,18 @@ export default function Statistics({ goals }) {
             <View style={styles.alertContent}>
               <Text style={styles.alertTitle}>Overdue Goals</Text>
               <Text style={styles.alertText}>
-                You have {overdueGoals} overdue {overdueGoals === 1 ? 'goal' : 'goals'}
+                You have {stats.overdueGoals} overdue {stats.overdueGoals === 1 ? 'goal' : 'goals'}
               </Text>
             </View>
           </View>
         </>
       )}
 
-      {Object.keys(categoryStats).length > 0 && (
+      {Object.keys(stats.categoryStats).length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Category Progress</Text>
-          {Object.entries(categoryStats).map(([category, stats]) => {
-            const rate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+          {Object.entries(stats.categoryStats).map(([category, categoryData]) => {
+            const rate = categoryData.total > 0 ? Math.round((categoryData.completed / categoryData.total) * 100) : 0;
             return (
               <View key={category} style={styles.categoryCard}>
                 <View style={styles.categoryHeader}>
@@ -190,7 +215,7 @@ export default function Statistics({ goals }) {
                   <View style={[styles.progressFill, { width: `${rate}%` }]} />
                 </View>
                 <Text style={styles.categoryStats}>
-                  {stats.completed} of {stats.total} completed
+                  {categoryData.completed} of {categoryData.total} completed
                 </Text>
               </View>
             );

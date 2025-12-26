@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { StyleSheet, TouchableOpacity, Pressable, Text, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -35,7 +35,7 @@ export default function HomeScreen() {
     return goals.filter(goal => goal.category === selectedCategory);
   }, [goals, selectedCategory]);
 
-  const handleSubmitGoal = (goalData) => {
+  const handleSubmitGoal = useCallback((goalData) => {
     let success;
 
     if (goalData.id) {
@@ -50,27 +50,27 @@ export default function HomeScreen() {
       setModalVisible(false);
       setEditingGoal(null);
     }
-  };
+  }, [addGoal, editGoal]);
 
-  const handleEditGoal = (goal) => {
+  const handleEditGoal = useCallback((goal) => {
     setEditingGoal(goal);
     setModalVisible(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setModalVisible(false);
     setEditingGoal(null);
-  };
+  }, []);
 
-  const handleShareGoal = (goal) => {
+  const handleShareGoal = useCallback((goal) => {
     setSharingGoal(goal);
     setShareModalVisible(true);
-  };
+  }, []);
 
-  const handleCloseShareModal = () => {
+  const handleCloseShareModal = useCallback(() => {
     setShareModalVisible(false);
     setSharingGoal(null);
-  };
+  }, []);
 
   if (isLoading) {
     return <LoadingScreen />;
