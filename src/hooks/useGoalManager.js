@@ -43,12 +43,34 @@ export default function useGoalManager() {
       }
     };
 
-    const loadGoals = async () => {
+    const loadAndResetGoals = async () => {
       try {
+        // Step 1: Load goals from storage
         const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
-        if (storedGoals) {
-          setGoals(JSON.parse(storedGoals));
+        if (!storedGoals) {
+          setIsLoading(false);
+          return;
         }
+
+        let parsedGoals = JSON.parse(storedGoals);
+
+        // Step 2: Check if daily reset is needed
+        const lastResetDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
+        const today = new Date().toDateString();
+
+        if (lastResetDate !== today) {
+          // Reset daily goals before setting state
+          parsedGoals = parsedGoals.map(goal =>
+            goal.isRepeating ? { ...goal, completed: false } : goal
+          );
+
+          // Save reset goals and update reset date
+          await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(parsedGoals));
+          await AsyncStorage.setItem(STORAGE_KEYS.LAST_RESET, today);
+        }
+
+        // Step 3: Set state with potentially reset goals
+        setGoals(parsedGoals);
       } catch (error) {
         console.error('Error loading goals:', error);
         Alert.alert('Error', 'Failed to load goals.');
@@ -57,32 +79,9 @@ export default function useGoalManager() {
       }
     };
 
-    const resetDailyGoals = async () => {
-      try {
-        const lastResetDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
-        const today = new Date().toDateString();
-
-        if (lastResetDate !== today) {
-          const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
-          if (storedGoals) {
-            const parsedGoals = JSON.parse(storedGoals);
-            const updatedGoals = parsedGoals.map(goal =>
-              goal.isRepeating ? { ...goal, completed: false } : goal
-            );
-            await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updatedGoals));
-            setGoals(updatedGoals);
-          }
-          await AsyncStorage.setItem(STORAGE_KEYS.LAST_RESET, today);
-        }
-      } catch (error) {
-        console.error('Error resetting daily goals:', error);
-      }
-    };
-
-    // Run migration first, then load tasks
+    // Run migration first, then load and reset goals
     migrateToSubtasks().then(() => {
-      loadGoals();
-      resetDailyGoals();
+      loadAndResetGoals();
     });
   }, []);
 
@@ -241,23 +240,10 @@ export default function useGoalManager() {
     saveGoals(updatedGoals);
   }, [goals, saveGoals, calculateStreak]);
 
-  // Delete a goal
+  // Delete a goal (no confirmation - component should handle that)
   const deleteGoal = useCallback((goalId) => {
-    Alert.alert(
-      'Delete Goal',
-      'Are you sure you want to delete this goal?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            const updatedGoals = goals.filter(goal => goal.id !== goalId);
-            saveGoals(updatedGoals);
-          },
-        },
-      ]
-    );
+    const updatedGoals = goals.filter(goal => goal.id !== goalId);
+    saveGoals(updatedGoals);
   }, [goals, saveGoals]);
 
   // Reorder goals (for drag and drop)

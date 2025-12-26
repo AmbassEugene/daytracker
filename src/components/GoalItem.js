@@ -64,6 +64,22 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
     }
   };
 
+  // Handle goal deletion with confirmation
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Goal',
+      'Are you sure you want to delete this goal?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => onDelete(goal.id),
+        },
+      ]
+    );
+  };
+
   // Check if goal is overdue
   const isOverdue = () => {
     if (!goal.dueDate || goal.completed) return false;
@@ -236,7 +252,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
             styles.deleteButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
-          onPress={() => onDelete(goal.id)}
+          onPress={handleDelete}
         >
           <Text style={styles.deleteButtonText}>×</Text>
         </Pressable>

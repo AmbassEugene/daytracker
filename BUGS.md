@@ -97,3 +97,23 @@ Copy this template for each new bug you find:
   - **Medium:** Feature doesn't work as expected but has workaround
   - **High:** Feature broken, no workaround
   - **Critical:** App crashes or data loss
+
+
+
+Darkmode: UI color
+1. The goal card background color should be lighter and the shadow colors should be a lighter version of the card background color
+2. The placeholder text is barely visible 
+
+Create goal
+Adding a new goal, 
+1. the priority is always on "medium" by default. it should be none
+2. category is always on "personal" by default. it should be none
+3. 
+
+Micro goals :
+1. A micro goal should be checked when the label of the goal is pressed not only when the checkbox is pressed
+2. the Addd micro goals input is too large. reduce the height a bit and add a "Add" button at the end of the input. the button should appear only when the input has text. 
+
+Goal Card: 
+1. swipe right to complete a goal
+2. 
