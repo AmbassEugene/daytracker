@@ -12,7 +12,7 @@ export default function SubtaskList({ subtasks = [], onToggle, onDelete }) {
 
   const handleDelete = (subtaskId, description) => {
     Alert.alert(
-      'Delete Subtask',
+      'Delete Micro Goal',
       `Delete "${description}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
@@ -27,7 +27,7 @@ export default function SubtaskList({ subtasks = [], onToggle, onDelete }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Subtasks</Text>
+      <Text style={styles.header}>Micro Goals</Text>
       {subtasks.map((subtask) => (
         <View key={subtask.id} style={styles.subtaskItem}>
           <Pressable

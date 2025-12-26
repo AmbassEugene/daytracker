@@ -18,7 +18,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Calculate subtask progress
-  const subtasks = task.subtasks || [];
+  const subtasks = goal.subtasks || [];
   const completedSubtasks = subtasks.filter(st => st.completed).length;
   const hasSubtasks = subtasks.length > 0;
 
@@ -35,7 +35,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
     // If parent is not completed and all subtasks will be complete, prompt FIRST
     if (wasLastIncomplete && !goal.completed) {
       Alert.alert(
-        'All Subtasks Complete!',
+        'All Micro Goals Complete!',
         'Mark parent goal as done too?',
         [
           {
@@ -43,14 +43,14 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
             style: 'cancel',
             onPress: () => {
               // User said no, just toggle the subtask
-              onToggleSubtask(task.id, subgoalId);
+              onToggleSubtask(goal.id, subgoalId);
             }
           },
           {
             text: 'Yes, complete it',
             onPress: () => {
               // Toggle subtask AND parent together
-              onToggleSubtask(task.id, subgoalId);
+              onToggleSubtask(goal.id, subgoalId);
               // Small delay to let subtask update first
               setTimeout(() => onToggle(goal.id), 100);
             },
@@ -60,7 +60,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
       );
     } else {
       // Not the last subtask, just toggle normally
-      onToggleSubtask(task.id, subgoalId);
+      onToggleSubtask(goal.id, subgoalId);
     }
   };
 
@@ -220,11 +220,11 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
               <SubtaskList
                 subtasks={subtasks}
                 onToggle={handleToggleSubtask}
-                onDelete={(subgoalId) => onDeleteSubtask(task.id, subgoalId)}
+                onDelete={(subgoalId) => onDeleteSubtask(goal.id, subgoalId)}
               />
               <SubtaskInput
-                onAdd={(description) => onAddSubtask(task.id, description)}
-                placeholder="+ Add subtask"
+                onAdd={(description) => onAddSubtask(goal.id, description)}
+                placeholder="+ Add micro goal"
               />
             </>
           )}

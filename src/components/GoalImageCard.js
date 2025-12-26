@@ -66,7 +66,7 @@ export default function GoalImageCard({ goal }) {
           <View style={styles.infoRow}>
             <Text style={styles.subtaskEmoji}>📝</Text>
             <Text style={styles.subtaskText}>
-              {completedSubgoals}/{subgoals.length} subtasks completed
+              {completedSubgoals}/{subgoals.length} micro goals completed
             </Text>
           </View>
         )}

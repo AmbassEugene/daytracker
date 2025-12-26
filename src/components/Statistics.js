@@ -18,7 +18,7 @@ export default function Statistics({ goals }) {
     : 0;
 
   // Streak stats
-  const activeStreaks = goals.filter(g => g.isRepeating && t.currentStreak > 0);
+  const activeStreaks = goals.filter(g => g.isRepeating && g.currentStreak > 0);
   const longestCurrentStreak = activeStreaks.length > 0
     ? Math.max(...activeStreaks.map(g => g.currentStreak))
     : 0;
@@ -75,7 +75,7 @@ export default function Statistics({ goals }) {
           <Text style={styles.statLabel}>Total Goals</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{activeTasks}</Text>
+          <Text style={styles.statValue}>{activeGoals}</Text>
           <Text style={styles.statLabel}>Active</Text>
         </View>
         <View style={styles.statCard}>
@@ -102,11 +102,11 @@ export default function Statistics({ goals }) {
 
       {totalSubtasks > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Subtask Progress</Text>
+          <Text style={styles.sectionTitle}>Micro Goals Progress</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{totalSubtasks}</Text>
-              <Text style={styles.statLabel}>Total Subtasks</Text>
+              <Text style={styles.statLabel}>Total Micro Goals</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{completedSubtasks}</Text>
@@ -117,8 +117,8 @@ export default function Statistics({ goals }) {
               <Text style={styles.statLabel}>Completion Rate</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{tasksWithSubtasks}</Text>
-              <Text style={styles.statLabel}>Goals with Subtasks</Text>
+              <Text style={styles.statValue}>{goalsWithSubgoals}</Text>
+              <Text style={styles.statLabel}>Goals with Micro Goals</Text>
             </View>
           </View>
         </>

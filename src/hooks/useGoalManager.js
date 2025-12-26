@@ -239,7 +239,7 @@ export default function useGoalManager() {
       return goal;
     });
     saveGoals(updatedGoals);
-  }, [goals, saveTasks, calculateStreak]);
+  }, [goals, saveGoals, calculateStreak]);
 
   // Delete a goal
   const deleteGoal = useCallback((goalId) => {
@@ -268,7 +268,7 @@ export default function useGoalManager() {
       order: index,
     }));
     saveGoals(goalsWithNewOrder);
-  }, [saveTasks]);
+  }, [saveGoals]);
 
   // Helper function to check if a goal is overdue
   const isOverdue = useCallback((goal) => {

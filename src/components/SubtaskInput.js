@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 import { SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../constants';
 
-export default function SubtaskInput({ onAdd, placeholder = "+ Add subtask" }) {
+export default function SubtaskInput({ onAdd, placeholder = "+ Add micro goal" }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
   const [text, setText] = useState('');
