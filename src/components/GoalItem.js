@@ -182,13 +182,13 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
               {dueDateDisplay && (
                 <View style={[
                   styles.dueDateBadge,
-                  taskIsOverdue && styles.dueDateBadgeOverdue
+                  goalIsOverdue && styles.dueDateBadgeOverdue
                 ]}>
                   <Text style={[
                     styles.dueDateText,
-                    taskIsOverdue && styles.dueDateTextOverdue
+                    goalIsOverdue && styles.dueDateTextOverdue
                   ]}>
-                    {taskIsOverdue && '⚠️ '}{dueDateDisplay}
+                    {goalIsOverdue && '⚠️ '}{dueDateDisplay}
                   </Text>
                 </View>
               )}
