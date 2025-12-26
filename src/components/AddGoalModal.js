@@ -14,7 +14,7 @@ import {
 import { PRIORITY_COLORS, CATEGORIES } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
 
-export default function AddTaskModal({ visible, onClose, onSubmit, editingTask = null }) {
+export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal = null }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
   const [description, setDescription] = useState('');
@@ -66,16 +66,16 @@ export default function AddTaskModal({ visible, onClose, onSubmit, editingTask =
 
   // Pre-fill form when editing
   useEffect(() => {
-    if (editingTask) {
-      setDescription(editingTask.description || '');
-      setPurpose(editingTask.purpose || '');
-      setPriority(editingTask.priority || 'medium');
-      setIsRepeating(editingTask.isRepeating || false);
-      setCategory(editingTask.category || 'personal');
-      setDueDate(editingTask.dueDate || '');
-      setDueTime(editingTask.dueTime || '');
+    if (editingGoal) {
+      setDescription(editingGoal.description || '');
+      setPurpose(editingGoal.purpose || '');
+      setPriority(editingGoal.priority || 'medium');
+      setIsRepeating(editingGoal.isRepeating || false);
+      setCategory(editingGoal.category || 'personal');
+      setDueDate(editingGoal.dueDate || '');
+      setDueTime(editingGoal.dueTime || '');
     }
-  }, [editingTask]);
+  }, [editingGoal]);
 
   const resetForm = () => {
     setDescription('');
@@ -104,15 +104,15 @@ export default function AddTaskModal({ visible, onClose, onSubmit, editingTask =
     };
 
     // If editing, include the task ID
-    if (editingTask) {
-      taskData.id = editingTask.id;
+    if (editingGoal) {
+      taskData.id = editingGoal.id;
     }
 
     onSubmit(taskData);
     resetForm();
   };
 
-  const isEditing = !!editingTask;
+  const isEditing = !!editingGoal;
   const modalTitle = isEditing ? 'Edit Goal' : 'Add New Goal';
   const submitButtonText = isEditing ? 'Save Changes' : 'Add Goal';
 

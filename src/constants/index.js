@@ -21,7 +21,7 @@ export const PRIORITY_BACKGROUNDS = {
 
 // AsyncStorage keys
 export const STORAGE_KEYS = {
-  TASKS: 'daytracker_goals',
+  GOALS: 'daytracker_goals',
   LAST_RESET: 'last_reset_date',
   SCHEMA_VERSION: 'schema_version',
   SUBTASKS_EXPANDED_DEFAULT: 'subtasks_expanded_default',

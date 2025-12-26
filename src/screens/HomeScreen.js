@@ -3,13 +3,13 @@ import { StyleSheet, TouchableOpacity, Pressable, Text, View, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Header from '../components/Header';
-import TaskList from '../components/TaskList';
-import AddTaskModal from '../components/AddTaskModal';
+import GoalList from '../components/GoalList';
+import AddGoalModal from '../components/AddGoalModal';
 import StatisticsModal from '../components/StatisticsModal';
 import SettingsModal from '../components/SettingsModal';
 import ShareGoalModal from '../components/ShareGoalModal';
 import LoadingScreen from '../components/LoadingScreen';
-import useTaskManager from '../hooks/useTaskManager';
+import useGoalManager from '../hooks/useGoalManager';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
 import { CATEGORIES } from '../constants';
@@ -20,22 +20,22 @@ export default function HomeScreen() {
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-  const [sharingTask, setSharingTask] = useState(null);
+  const [editingTask, setEditingGoal] = useState(null);
+  const [sharingTask, setSharingGoal] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { tasks, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useTaskManager();
+  const { goals, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useGoalManager();
   const colors = useThemeColors();
   const { isDark } = useTheme();
 
-  // Filter tasks by category
-  const filteredTasks = useMemo(() => {
+  // Filter goals by category
+  const filteredGoals = useMemo(() => {
     if (selectedCategory === 'all') {
       return tasks;
     }
     return tasks.filter(task => task.category === selectedCategory);
   }, [tasks, selectedCategory]);
 
-  const handleSubmitTask = (taskData) => {
+  const handleSubmitGoal = (taskData) => {
     let success;
 
     if (taskData.id) {
@@ -48,28 +48,28 @@ export default function HomeScreen() {
 
     if (success) {
       setModalVisible(false);
-      setEditingTask(null);
+      setEditingGoal(null);
     }
   };
 
-  const handleEditTask = (task) => {
-    setEditingTask(task);
+  const handleEditGoal = (task) => {
+    setEditingGoal(task);
     setModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    setEditingTask(null);
+    setEditingGoal(null);
   };
 
-  const handleShareTask = (task) => {
-    setSharingTask(task);
+  const handleShareGoal = (task) => {
+    setSharingGoal(task);
     setShareModalVisible(true);
   };
 
   const handleCloseShareModal = () => {
     setShareModalVisible(false);
-    setSharingTask(null);
+    setSharingGoal(null);
   };
 
   if (isLoading) {
@@ -125,12 +125,12 @@ export default function HomeScreen() {
         </ScrollView>
       </View>
 
-      <TaskList
-        tasks={filteredTasks}
+      <GoalList
+        goals={filteredGoals}
         onToggle={toggleTask}
-        onEdit={handleEditTask}
+        onEdit={handleEditGoal}
         onDelete={deleteTask}
-        onShare={handleShareTask}
+        onShare={handleShareGoal}
         onAddSubtask={addSubtask}
         onToggleSubtask={toggleSubtask}
         onDeleteSubtask={deleteSubtask}
@@ -187,23 +187,23 @@ export default function HomeScreen() {
         <Text style={styles.menuToggleButtonText}>☰</Text>
       </Pressable>
 
-      <AddTaskModal
+      <AddGoalModal
         visible={modalVisible}
         onClose={handleCloseModal}
-        onSubmit={handleSubmitTask}
+        onSubmit={handleSubmitGoal}
         editingTask={editingTask}
       />
 
       <StatisticsModal
         visible={statsModalVisible}
         onClose={() => setStatsModalVisible(false)}
-        tasks={tasks}
+        goals={goals}
       />
 
       <SettingsModal
         visible={settingsModalVisible}
         onClose={() => setSettingsModalVisible(false)}
-        tasks={tasks}
+        goals={goals}
       />
 
       <ShareGoalModal

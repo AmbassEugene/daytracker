@@ -7,7 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import SubtaskList from './SubtaskList';
 import SubtaskInput from './SubtaskInput';
 
-const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
+const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
   const { isDark } = useTheme();
   const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][task.priority];
@@ -23,13 +23,13 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const hasSubtasks = subtasks.length > 0;
 
   // Handle subtask toggle with auto-complete prompt
-  const handleToggleSubtask = (subtaskId) => {
+  const handleToggleSubtask = (subgoalId) => {
     // Find the subtask being toggled
-    const subtask = subtasks.find(st => st.id === subtaskId);
+    const subtask = subtasks.find(st => st.id === subgoalId);
     if (!subtask) return;
 
     // Check if this was the last incomplete subtask and it's now being completed
-    const wasLastIncomplete = !subtask.completed &&
+    const wasLastIncomplete = !sugoal.completed &&
       subtasks.filter(st => !st.completed).length === 1;
 
     // If parent is not completed and all subtasks will be complete, prompt FIRST
@@ -43,14 +43,14 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
             style: 'cancel',
             onPress: () => {
               // User said no, just toggle the subtask
-              onToggleSubtask(task.id, subtaskId);
+              onToggleSubtask(task.id, subgoalId);
             }
           },
           {
             text: 'Yes, complete it',
             onPress: () => {
               // Toggle subtask AND parent together
-              onToggleSubtask(task.id, subtaskId);
+              onToggleSubtask(task.id, subgoalId);
               // Small delay to let subtask update first
               setTimeout(() => onToggle(task.id), 100);
             },
@@ -60,7 +60,7 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
       );
     } else {
       // Not the last subtask, just toggle normally
-      onToggleSubtask(task.id, subtaskId);
+      onToggleSubtask(task.id, subgoalId);
     }
   };
 
@@ -143,7 +143,7 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const dueDateDisplay = formatDueDate();
 
   return (
-    <View style={[styles.taskItem, task.completed && styles.taskItemCompleted]}>
+    <View style={[styles.goalItem, task.completed && styles.goalItemCompleted]}>
       <TouchableOpacity
         style={styles.taskContent}
         onPress={() => setIsExpanded(!isExpanded)}
@@ -220,7 +220,7 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
               <SubtaskList
                 subtasks={subtasks}
                 onToggle={handleToggleSubtask}
-                onDelete={(subtaskId) => onDeleteSubtask(task.id, subtaskId)}
+                onDelete={(subgoalId) => onDeleteSubtask(task.id, subgoalId)}
               />
               <SubtaskInput
                 onAdd={(description) => onAddSubtask(task.id, description)}
@@ -263,10 +263,10 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
   );
 });
 
-export default TaskItem;
+export default GoalItem;
 
 const getStyles = (colors, priorityBgColor) => StyleSheet.create({
-  taskItem: {
+  goalItem: {
     backgroundColor: priorityBgColor,
     borderRadius: 12,
     padding: 16,
@@ -279,7 +279,7 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  taskItemCompleted: {
+  goalItemCompleted: {
     opacity: 0.6,
   },
   taskContent: {

@@ -3,39 +3,39 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { STORAGE_KEYS, PRIORITY_ORDER } from '../constants';
 
-export default function useTaskManager() {
-  const [tasks, setTasks] = useState([]);
+export default function useGoalManager() {
+  const [goals, setGoals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Save tasks to AsyncStorage
-  const saveTasks = useCallback(async (updatedTasks) => {
+  // Save goals to AsyncStorage
+  const saveGoals = useCallback(async (updatedGoals) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(updatedTasks));
-      setTasks(updatedTasks);
+      await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updatedGoals));
+      setGoals(updatedGoals);
     } catch (error) {
-      console.error('Error saving tasks:', error);
+      console.error('Error saving goals:', error);
       Alert.alert('Error', 'Failed to save goals. Please try again.');
     }
   }, []);
 
-  // Load tasks and reset daily tasks on mount
+  // Load goals and reset daily goals on mount
   useEffect(() => {
     const migrateToSubtasks = async () => {
       try {
         const version = await AsyncStorage.getItem(STORAGE_KEYS.SCHEMA_VERSION);
 
         if (version !== '2.0') {
-          const storedTasks = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
-          if (storedTasks) {
-            const tasks = JSON.parse(storedTasks);
-            const migratedTasks = tasks.map(task => ({
-              ...task,
-              subtasks: task.subtasks || []  // Add empty array if missing
+          const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
+          if (storedGoals) {
+            const goals = JSON.parse(storedGoals);
+            const migratedGoals = goals.map(goal => ({
+              ...goal,
+              subtasks: goal.subtasks || []  // Add empty array if missing
             }));
 
-            await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(migratedTasks));
+            await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(migratedGoals));
             await AsyncStorage.setItem(STORAGE_KEYS.SCHEMA_VERSION, '2.0');
-            console.log('Migrated tasks to schema version 2.0');
+            console.log('Migrated goals to schema version 2.0');
           }
         }
       } catch (error) {
@@ -43,50 +43,50 @@ export default function useTaskManager() {
       }
     };
 
-    const loadTasks = async () => {
+    const loadGoals = async () => {
       try {
-        const storedTasks = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
-        if (storedTasks) {
-          setTasks(JSON.parse(storedTasks));
+        const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
+        if (storedGoals) {
+          setGoals(JSON.parse(storedGoals));
         }
       } catch (error) {
-        console.error('Error loading tasks:', error);
+        console.error('Error loading goals:', error);
         Alert.alert('Error', 'Failed to load goals.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    const resetDailyTasks = async () => {
+    const resetDailyGoals = async () => {
       try {
         const lastResetDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
         const today = new Date().toDateString();
 
         if (lastResetDate !== today) {
-          const storedTasks = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
-          if (storedTasks) {
-            const parsedTasks = JSON.parse(storedTasks);
-            const updatedTasks = parsedTasks.map(task =>
-              task.isRepeating ? { ...task, completed: false } : task
+          const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
+          if (storedGoals) {
+            const parsedGoals = JSON.parse(storedGoals);
+            const updatedGoals = parsedGoals.map(goal =>
+              goal.isRepeating ? { ...goal, completed: false } : goal
             );
-            await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(updatedTasks));
-            setTasks(updatedTasks);
+            await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updatedGoals));
+            setGoals(updatedGoals);
           }
           await AsyncStorage.setItem(STORAGE_KEYS.LAST_RESET, today);
         }
       } catch (error) {
-        console.error('Error resetting daily tasks:', error);
+        console.error('Error resetting daily goals:', error);
       }
     };
 
     // Run migration first, then load tasks
     migrateToSubtasks().then(() => {
-      loadTasks();
-      resetDailyTasks();
+      loadGoals();
+      resetDailyGoals();
     });
   }, []);
 
-  // Calculate streak for a task based on completion history
+  // Calculate streak for a goal based on completion history
   const calculateStreak = useCallback((completionHistory) => {
     if (!completionHistory || completionHistory.length === 0) {
       return { currentStreak: 0, longestStreak: 0 };
@@ -140,25 +140,25 @@ export default function useTaskManager() {
     return { currentStreak, longestStreak };
   }, []);
 
-  // Add a new task
-  const addTask = useCallback((taskData) => {
-    if (!taskData.description.trim()) {
+  // Add a new goal
+  const addGoal = useCallback((goalData) => {
+    if (!goalData.description.trim()) {
       Alert.alert('Error', 'Please enter a goal description');
       return false;
     }
 
-    // Calculate the order for the new task (append to end)
-    const maxOrder = tasks.length > 0 ? Math.max(...tasks.map(t => t.order || 0)) : 0;
+    // Calculate the order for the new goal (append to end)
+    const maxOrder = goals.length > 0 ? Math.max(...goals.map(g => g.order || 0)) : 0;
 
-    const newTask = {
+    const newGoal = {
       id: Date.now().toString(),
-      description: taskData.description,
-      purpose: taskData.purpose,
-      priority: taskData.priority,
-      isRepeating: taskData.isRepeating,
-      category: taskData.category || 'personal',
-      dueDate: taskData.dueDate || null,
-      dueTime: taskData.dueTime || null,
+      description: goalData.description,
+      purpose: goalData.purpose,
+      priority: goalData.priority,
+      isRepeating: goalData.isRepeating,
+      category: goalData.category || 'personal',
+      dueDate: goalData.dueDate || null,
+      dueTime: goalData.dueTime || null,
       completed: false,
       createdAt: new Date().toISOString(),
       completionHistory: [],
@@ -168,48 +168,48 @@ export default function useTaskManager() {
       subtasks: [],
     };
 
-    const updatedTasks = [...tasks, newTask];
-    saveTasks(updatedTasks);
+    const updatedGoals = [...goals, newGoal];
+    saveGoals(updatedGoals);
     return true;
-  }, [tasks, saveTasks]);
+  }, [goals, saveGoals]);
 
-  // Edit an existing task
-  const editTask = useCallback((taskData) => {
-    if (!taskData.description.trim()) {
+  // Edit an existing goal
+  const editGoal = useCallback((goalData) => {
+    if (!goalData.description.trim()) {
       Alert.alert('Error', 'Please enter a goal description');
       return false;
     }
 
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskData.id) {
-        // Preserve original task data, only update editable fields
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === goalData.id) {
+        // Preserve original goal data, only update editable fields
         return {
-          ...task,
-          description: taskData.description,
-          purpose: taskData.purpose,
-          priority: taskData.priority,
-          isRepeating: taskData.isRepeating,
-          category: taskData.category || task.category || 'personal',
-          dueDate: taskData.dueDate !== undefined ? taskData.dueDate : task.dueDate,
-          dueTime: taskData.dueTime !== undefined ? taskData.dueTime : task.dueTime,
+          ...goal,
+          description: goalData.description,
+          purpose: goalData.purpose,
+          priority: goalData.priority,
+          isRepeating: goalData.isRepeating,
+          category: goalData.category || goal.category || 'personal',
+          dueDate: goalData.dueDate !== undefined ? goalData.dueDate : goal.dueDate,
+          dueTime: goalData.dueTime !== undefined ? goalData.dueTime : goal.dueTime,
         };
       }
-      return task;
+      return goal;
     });
 
-    saveTasks(updatedTasks);
+    saveGoals(updatedGoals);
     return true;
-  }, [tasks, saveTasks]);
+  }, [goals, saveGoals]);
 
-  // Toggle task completion
-  const toggleTask = useCallback((taskId) => {
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        const isCompleting = !task.completed;
+  // Toggle goal completion
+  const toggleGoal = useCallback((goalId) => {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === taskId) {
+        const isCompleting = !goal.completed;
         const today = new Date().toDateString();
-        let updatedCompletionHistory = task.completionHistory || [];
+        let updatedCompletionHistory = goal.completionHistory || [];
 
-        if (isCompleting && task.isRepeating) {
+        if (isCompleting && goal.isRepeating) {
           // Add today's date to completion history if not already there
           const todayAlreadyCompleted = updatedCompletionHistory.some(
             date => new Date(date).toDateString() === today
@@ -218,7 +218,7 @@ export default function useTaskManager() {
           if (!todayAlreadyCompleted) {
             updatedCompletionHistory = [...updatedCompletionHistory, new Date().toISOString()];
           }
-        } else if (!isCompleting && task.isRepeating) {
+        } else if (!isCompleting && goal.isRepeating) {
           // Remove today's completion from history when uncompleting
           updatedCompletionHistory = updatedCompletionHistory.filter(
             date => new Date(date).toDateString() !== today
@@ -229,20 +229,20 @@ export default function useTaskManager() {
         const { currentStreak, longestStreak } = calculateStreak(updatedCompletionHistory);
 
         return {
-          ...task,
+          ...goal,
           completed: isCompleting,
           completionHistory: updatedCompletionHistory,
           currentStreak,
-          longestStreak: Math.max(task.longestStreak || 0, longestStreak),
+          longestStreak: Math.max(goal.longestStreak || 0, longestStreak),
         };
       }
-      return task;
+      return goal;
     });
-    saveTasks(updatedTasks);
-  }, [tasks, saveTasks, calculateStreak]);
+    saveGoals(updatedGoals);
+  }, [goals, saveTasks, calculateStreak]);
 
-  // Delete a task
-  const deleteTask = useCallback((taskId) => {
+  // Delete a goal
+  const deleteGoal = useCallback((goalId) => {
     Alert.alert(
       'Delete Goal',
       'Are you sure you want to delete this goal?',
@@ -252,33 +252,33 @@ export default function useTaskManager() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            const updatedTasks = tasks.filter(task => task.id !== taskId);
-            saveTasks(updatedTasks);
+            const updatedGoals = goals.filter(goal => goal.id !== taskId);
+            saveGoals(updatedGoals);
           },
         },
       ]
     );
-  }, [tasks, saveTasks]);
+  }, [goals, saveGoals]);
 
-  // Reorder tasks (for drag and drop)
-  const reorderTasks = useCallback((reorderedTasks) => {
-    // Update order field for each task based on new position
-    const tasksWithNewOrder = reorderedTasks.map((task, index) => ({
-      ...task,
+  // Reorder goals (for drag and drop)
+  const reorderGoals = useCallback((reorderedTasks) => {
+    // Update order field for each goal based on new position
+    const goalsWithNewOrder = reorderedTasks.map((goal, index) => ({
+      ...goal,
       order: index,
     }));
-    saveTasks(tasksWithNewOrder);
+    saveGoals(goalsWithNewOrder);
   }, [saveTasks]);
 
-  // Helper function to check if a task is overdue
-  const isOverdue = useCallback((task) => {
-    if (!task.dueDate || task.completed) return false;
+  // Helper function to check if a goal is overdue
+  const isOverdue = useCallback((goal) => {
+    if (!goal.dueDate || goal.completed) return false;
 
     const now = new Date();
-    const dueDateTime = new Date(task.dueDate);
+    const dueDateTime = new Date(goal.dueDate);
 
-    if (task.dueTime) {
-      const [hours, minutes] = task.dueTime.split(':');
+    if (goal.dueTime) {
+      const [hours, minutes] = goal.dueTime.split(':');
       dueDateTime.setHours(parseInt(hours), parseInt(minutes));
       return now > dueDateTime;
     }
@@ -288,28 +288,28 @@ export default function useTaskManager() {
     return now > dueDateTime;
   }, []);
 
-  // Memoized sorted tasks
-  const sortedTasks = useMemo(() => {
-    // First, ensure all tasks have an order field (for backwards compatibility)
-    const tasksWithOrder = tasks.map((task, index) => ({
-      ...task,
-      order: task.order !== undefined ? task.order : index,
+  // Memoized sorted goals
+  const sortedGoals = useMemo(() => {
+    // First, ensure all goals have an order field (for backwards compatibility)
+    const goalsWithOrder = goals.map((goal, index) => ({
+      ...goal,
+      order: goal.order !== undefined ? goal.order : index,
     }));
 
-    return [...tasksWithOrder].sort((a, b) => {
-      // Completed tasks go to bottom
+    return [...goalsWithOrder].sort((a, b) => {
+      // Completed goals go to bottom
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1;
       }
 
-      // Overdue tasks at the top (for uncompleted tasks)
+      // Overdue goals at the top (for uncompleted goals)
       const aOverdue = isOverdue(a);
       const bOverdue = isOverdue(b);
       if (aOverdue !== bOverdue) {
         return aOverdue ? -1 : 1;
       }
 
-      // Tasks with due dates before tasks without
+      // Goals with due dates before goals without
       if (a.dueDate && !b.dueDate) return -1;
       if (!a.dueDate && b.dueDate) return 1;
 
@@ -330,20 +330,20 @@ export default function useTaskManager() {
       const priorityCompare = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       if (priorityCompare !== 0) return priorityCompare;
 
-      // Finally, use manual order for tasks with same priority
+      // Finally, use manual order for goals with same priority
       return (a.order || 0) - (b.order || 0);
     });
-  }, [tasks, isOverdue]);
+  }, [goals, isOverdue]);
 
-  // Add a subtask to a task
-  const addSubtask = useCallback((taskId, description) => {
+  // Add a subtask to a goal
+  const addSubgoal = useCallback((goalId, description) => {
     if (!description || !description.trim()) {
       return false;
     }
 
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        const newSubtask = {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === taskId) {
+        const newSubgoal = {
           id: Date.now().toString(),
           description: description.trim(),
           completed: false,
@@ -351,97 +351,97 @@ export default function useTaskManager() {
           completedAt: null,
         };
         return {
-          ...task,
-          subtasks: [...(task.subtasks || []), newSubtask],
+          ...goal,
+          subtasks: [...(goal.subtasks || []), newSubgoal],
         };
       }
-      return task;
+      return goal;
     });
 
-    saveTasks(updatedTasks);
+    saveGoals(updatedGoals);
     return true;
-  }, [tasks, saveTasks]);
+  }, [goals, saveGoals]);
 
   // Toggle a subtask's completion status
-  const toggleSubtask = useCallback((taskId, subtaskId) => {
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        const updatedSubtasks = (task.subtasks || []).map(subtask => {
-          if (subtask.id === subtaskId) {
+  const toggleSubgoal = useCallback((goalId, subtaskId) => {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === taskId) {
+        const updatedSubtasks = (goal.subtasks || []).map(subgoal => {
+          if (subgoal.id === subtaskId) {
             return {
-              ...subtask,
-              completed: !subtask.completed,
-              completedAt: !subtask.completed ? new Date().toISOString() : null,
+              ...subgoal,
+              completed: !subgoal.completed,
+              completedAt: !subgoal.completed ? new Date().toISOString() : null,
             };
           }
-          return subtask;
+          return subgoal;
         });
         return {
-          ...task,
+          ...goal,
           subtasks: updatedSubtasks,
         };
       }
-      return task;
+      return goal;
     });
 
-    saveTasks(updatedTasks);
-  }, [tasks, saveTasks]);
+    saveGoals(updatedGoals);
+  }, [goals, saveGoals]);
 
   // Delete a subtask
-  const deleteSubtask = useCallback((taskId, subtaskId) => {
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
+  const deleteSubgoal = useCallback((goalId, subtaskId) => {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === taskId) {
         return {
-          ...task,
-          subtasks: (task.subtasks || []).filter(subtask => subtask.id !== subtaskId),
+          ...goal,
+          subtasks: (goal.subtasks || []).filter(subgoal => subgoal.id !== subtaskId),
         };
       }
-      return task;
+      return goal;
     });
 
-    saveTasks(updatedTasks);
-  }, [tasks, saveTasks]);
+    saveGoals(updatedGoals);
+  }, [goals, saveGoals]);
 
   // Edit a subtask's description
-  const editSubtask = useCallback((taskId, subtaskId, newDescription) => {
+  const editSubgoal = useCallback((goalId, subtaskId, newDescription) => {
     if (!newDescription || !newDescription.trim()) {
       return false;
     }
 
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        const updatedSubtasks = (task.subtasks || []).map(subtask => {
-          if (subtask.id === subtaskId) {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === taskId) {
+        const updatedSubtasks = (goal.subtasks || []).map(subgoal => {
+          if (subgoal.id === subtaskId) {
             return {
-              ...subtask,
+              ...subgoal,
               description: newDescription.trim(),
             };
           }
-          return subtask;
+          return subgoal;
         });
         return {
-          ...task,
+          ...goal,
           subtasks: updatedSubtasks,
         };
       }
-      return task;
+      return goal;
     });
 
-    saveTasks(updatedTasks);
+    saveGoals(updatedGoals);
     return true;
-  }, [tasks, saveTasks]);
+  }, [goals, saveGoals]);
 
   return {
-    tasks: sortedTasks,
+    goals: sortedGoals,
     isLoading,
-    addTask,
-    editTask,
-    toggleTask,
-    deleteTask,
-    reorderTasks,
-    addSubtask,
-    toggleSubtask,
-    deleteSubtask,
-    editSubtask,
+    addGoal,
+    editGoal,
+    toggleGoal,
+    deleteGoal,
+    reorderGoals,
+    addSubgoal,
+    toggleSubgoal,
+    deleteSubgoal,
+    editSubgoal,
   };
 }

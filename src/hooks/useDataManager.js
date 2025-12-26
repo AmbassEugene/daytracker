@@ -11,7 +11,7 @@ export default function useDataManager() {
   const exportData = useCallback(async () => {
     try {
       // Get all data from AsyncStorage
-      const tasksData = await AsyncStorage.getItem(STORAGE_KEYS.TASKS);
+      const tasksData = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
       const lastResetData = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
 
       const exportObject = {
@@ -82,7 +82,7 @@ export default function useDataManager() {
                 // Import tasks
                 if (importedData.data.tasks) {
                   await AsyncStorage.setItem(
-                    STORAGE_KEYS.TASKS,
+                    STORAGE_KEYS.GOALS,
                     JSON.stringify(importedData.data.tasks)
                   );
                 }
@@ -162,7 +162,7 @@ export default function useDataManager() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(STORAGE_KEYS.TASKS);
+              await AsyncStorage.removeItem(STORAGE_KEYS.GOALS);
               await AsyncStorage.removeItem(STORAGE_KEYS.LAST_RESET);
               Alert.alert('Success', 'All data cleared successfully!');
             } catch (error) {

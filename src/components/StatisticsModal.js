@@ -5,7 +5,7 @@ import Statistics from './Statistics';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
 
-export default function StatisticsModal({ visible, onClose, tasks }) {
+export default function StatisticsModal({ visible, onClose, goals }) {
   const colors = useThemeColors();
   const { isDark } = useTheme();
   const styles = getStyles(colors);

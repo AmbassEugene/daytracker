@@ -5,7 +5,7 @@ import useDataManager from '../hooks/useDataManager';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
 
-export default function SettingsModal({ visible, onClose, tasks }) {
+export default function SettingsModal({ visible, onClose, goals }) {
   const { exportData, importData, clearAllData } = useDataManager();
   const colors = useThemeColors();
   const { isDark, themeMode, setTheme } = useTheme();
