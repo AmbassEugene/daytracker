@@ -178,7 +178,7 @@ export default function useDataManager() {
   return {
     exportData,
     importData,
-    shareTasks,
+    shareGoals,
     clearAllData,
   };
 }
