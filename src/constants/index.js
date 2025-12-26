@@ -25,6 +25,7 @@ export const STORAGE_KEYS = {
   LAST_RESET: 'last_reset_date',
   SCHEMA_VERSION: 'schema_version',
   SUBTASKS_EXPANDED_DEFAULT: 'subtasks_expanded_default',
+  THEME_MODE: '@theme_mode',
 };
 
 // Design System - Spacing Scale

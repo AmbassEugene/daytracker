@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../constants';
 
 const ThemeContext = createContext();
 
@@ -25,7 +26,7 @@ export const ThemeProvider = ({ children }) => {
 
   const loadThemePreference = async () => {
     try {
-      const savedTheme = await AsyncStorage.getItem('@theme_mode');
+      const savedTheme = await AsyncStorage.getItem(STORAGE_KEYS.THEME_MODE);
       if (savedTheme) {
         setThemeMode(savedTheme);
       }
@@ -36,7 +37,7 @@ export const ThemeProvider = ({ children }) => {
 
   const setTheme = async (mode) => {
     try {
-      await AsyncStorage.setItem('@theme_mode', mode);
+      await AsyncStorage.setItem(STORAGE_KEYS.THEME_MODE, mode);
       setThemeMode(mode);
     } catch (error) {
       console.error('Error saving theme preference:', error);
