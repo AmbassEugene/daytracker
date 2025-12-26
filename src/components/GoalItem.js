@@ -4,8 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { PRIORITY_COLORS, PRIORITY_BACKGROUNDS, CATEGORY_MAP } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
-import SubtaskList from './SubtaskList';
-import SubtaskInput from './SubtaskInput';
+import MicroGoalList from './MicroGoalList';
+import MicroGoalInput from './MicroGoalInput';
 
 const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
@@ -217,12 +217,12 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
           {/* Subtasks - shown when expanded */}
           {isExpanded && (
             <>
-              <SubtaskList
+              <MicroGoalList
                 subtasks={subtasks}
                 onToggle={handleToggleSubtask}
                 onDelete={(subgoalId) => onDeleteSubtask(goal.id, subgoalId)}
               />
-              <SubtaskInput
+              <MicroGoalInput
                 onAdd={(description) => onAddSubtask(goal.id, description)}
                 placeholder="+ Add micro goal"
               />

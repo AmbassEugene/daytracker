@@ -2,7 +2,7 @@ import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 import { SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../constants';
 
-export default function SubtaskList({ subtasks = [], onToggle, onDelete }) {
+export default function MicroGoalList({ subtasks = [], onToggle, onDelete }) {
   const colors = useThemeColors();
   const styles = getStyles(colors);
 
