@@ -60,7 +60,15 @@ export default function useDataManager() {
 
       const fileUri = result.assets[0].uri;
       const fileContent = await FileSystem.readAsStringAsync(fileUri);
-      const importedData = JSON.parse(fileContent);
+
+      let importedData;
+      try {
+        importedData = JSON.parse(fileContent);
+      } catch (parseError) {
+        console.error('Parse error during import:', parseError);
+        Alert.alert('Error', 'Invalid JSON file. Please check the file format.');
+        return;
+      }
 
       // Validate import data structure
       if (!importedData.version || !importedData.data) {

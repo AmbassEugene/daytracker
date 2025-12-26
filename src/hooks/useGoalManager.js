@@ -27,7 +27,14 @@ export default function useGoalManager() {
         if (version !== '2.0') {
           const storedGoals = await AsyncStorage.getItem(STORAGE_KEYS.GOALS);
           if (storedGoals) {
-            const goals = JSON.parse(storedGoals);
+            let goals;
+            try {
+              goals = JSON.parse(storedGoals);
+            } catch (parseError) {
+              console.error('Parse error during migration:', parseError);
+              // Reset to empty array if parse fails
+              goals = [];
+            }
             const migratedGoals = goals.map(goal => ({
               ...goal,
               subtasks: goal.subtasks || []  // Add empty array if missing
@@ -52,7 +59,14 @@ export default function useGoalManager() {
           return;
         }
 
-        let parsedGoals = JSON.parse(storedGoals);
+        let parsedGoals;
+        try {
+          parsedGoals = JSON.parse(storedGoals);
+        } catch (parseError) {
+          console.error('Parse error during load:', parseError);
+          Alert.alert('Error', 'Stored data is corrupted. Starting fresh.');
+          parsedGoals = [];
+        }
 
         // Step 2: Check if daily reset is needed
         const lastResetDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET);
