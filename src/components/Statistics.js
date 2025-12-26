@@ -54,9 +54,9 @@ export default function Statistics({ goals }) {
   }).length;
 
   // Subtask statistics
-  const totalSubtasks = goals.reduce((sum, task) =>
+  const totalSubtasks = goals.reduce((sum, goal) =>
     sum + (goal.subtasks?.length || 0), 0);
-  const completedSubtasks = goals.reduce((sum, task) =>
+  const completedSubtasks = goals.reduce((sum, goal) =>
     sum + (goal.subtasks?.filter(st => st.completed).length || 0), 0);
   const subtaskCompletionRate = totalSubtasks > 0
     ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
@@ -160,7 +160,7 @@ export default function Statistics({ goals }) {
         </View>
       </View>
 
-      {overdueTasks > 0 && (
+      {overdueGoals > 0 && (
         <>
           <Text style={styles.sectionTitle}>Alerts</Text>
           <View style={styles.alertCard}>
@@ -168,7 +168,7 @@ export default function Statistics({ goals }) {
             <View style={styles.alertContent}>
               <Text style={styles.alertTitle}>Overdue Goals</Text>
               <Text style={styles.alertText}>
-                You have {overdueTasks} overdue {overdueTasks === 1 ? 'goal' : 'goals'}
+                You have {overdueGoals} overdue {overdueGoals === 1 ? 'goal' : 'goals'}
               </Text>
             </View>
           </View>

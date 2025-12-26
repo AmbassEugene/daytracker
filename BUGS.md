@@ -117,3 +117,7 @@ Micro goals :
 Goal Card: 
 1. swipe right to complete a goal
 2. 
+
+Goal screen: 
+1. on empty goal, the filters should be hidden
+2. the filter should have a toggle button that hides or shows the filters

@@ -18,7 +18,7 @@ export default function useDataManager() {
         version: '1.0',
         exportDate: new Date().toISOString(),
         data: {
-          goals: goalsData ? JSON.parse(tasksData) : [],
+          goals: goalsData ? JSON.parse(goalsData) : [],
           lastReset: lastResetData,
         },
       };

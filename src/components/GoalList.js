@@ -17,9 +17,9 @@ export default function GoalList({ goals, onToggle, onEdit, onDelete, onShare, o
           onEdit={onEdit}
           onDelete={onDelete}
           onShare={onShare}
-          onAddSubgoal={onAddSubtask}
-          onToggleSubgoal={onToggleSubtask}
-          onDeleteSubgoal={onDeleteSubtask}
+          onAddSubtask={onAddSubtask}
+          onToggleSubtask={onToggleSubtask}
+          onDeleteSubtask={onDeleteSubtask}
         />
       ))}
     </ScrollView>

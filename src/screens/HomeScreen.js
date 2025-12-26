@@ -20,10 +20,10 @@ export default function HomeScreen() {
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [editingTask, setEditingGoal] = useState(null);
+  const [editingGoal, setEditingGoal] = useState(null);
   const [sharingGoal, setSharingGoal] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { goals, isLoading, addTask, editTask, toggleTask, deleteTask, addSubtask, toggleSubtask, deleteSubtask } = useGoalManager();
+  const { goals, isLoading, addGoal, editGoal, toggleGoal, deleteGoal, addSubgoal, toggleSubgoal, deleteSubgoal } = useGoalManager();
   const colors = useThemeColors();
   const { isDark } = useTheme();
 
@@ -127,13 +127,13 @@ export default function HomeScreen() {
 
       <GoalList
         goals={filteredGoals}
-        onToggle={toggleTask}
+        onToggle={toggleGoal}
         onEdit={handleEditGoal}
-        onDelete={deleteTask}
+        onDelete={deleteGoal}
         onShare={handleShareGoal}
-        onAddSubtask={addSubtask}
-        onToggleSubtask={toggleSubtask}
-        onDeleteSubtask={deleteSubtask}
+        onAddSubtask={addSubgoal}
+        onToggleSubtask={toggleSubgoal}
+        onDeleteSubtask={deleteSubgoal}
       />
 
       {menuVisible && (
@@ -191,7 +191,7 @@ export default function HomeScreen() {
         visible={modalVisible}
         onClose={handleCloseModal}
         onSubmit={handleSubmitGoal}
-        editingTask={editingTask}
+        editingGoal={editingGoal}
       />
 
       <StatisticsModal

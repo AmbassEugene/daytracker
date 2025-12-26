@@ -29,7 +29,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
     if (!subtask) return;
 
     // Check if this was the last incomplete subtask and it's now being completed
-    const wasLastIncomplete = !sugoal.completed &&
+    const wasLastIncomplete = !subtask.completed &&
       subtasks.filter(st => !st.completed).length === 1;
 
     // If parent is not completed and all subtasks will be complete, prompt FIRST
