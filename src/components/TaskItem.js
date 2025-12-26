@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import { StyleSheet, View, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { PRIORITY_COLORS, PRIORITY_BACKGROUNDS, CATEGORY_MAP } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
@@ -232,15 +233,6 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
       <View style={styles.actionButtons}>
         <Pressable
           style={({ pressed }) => [
-            styles.shareButton,
-            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
-          ]}
-          onPress={() => onShare(task)}
-        >
-          <Text style={styles.shareButtonText}>⤴</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [
             styles.deleteButton,
             pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
           ]}
@@ -256,6 +248,15 @@ const TaskItem = memo(({ task, onToggle, onEdit, onDelete, onShare, onAddSubtask
           onPress={() => onEdit(task)}
         >
           <Text style={styles.editButtonText}>✎</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
+            styles.shareButton,
+            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+          ]}
+          onPress={() => onShare(task)}
+        >
+          <Ionicons name="share-outline" size={20} color={colors.primary} />
         </Pressable>
       </View>
     </View>
@@ -416,11 +417,6 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
     backgroundColor: colors.editButtonBg,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  shareButtonText: {
-    color: colors.primary,
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   currentStreakBadge: {
     flexDirection: 'row',
