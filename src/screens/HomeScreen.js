@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const [editingGoal, setEditingGoal] = useState(null);
   const [sharingGoal, setSharingGoal] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [filtersVisible, setFiltersVisible] = useState(true);
   const { goals, isLoading, addGoal, editGoal, toggleGoal, deleteGoal, addSubgoal, toggleSubgoal, deleteSubgoal } = useGoalManager();
   const colors = useThemeColors();
   const { isDark } = useTheme();
@@ -84,46 +85,63 @@ export default function HomeScreen() {
 
       <Header />
 
-      <View style={styles.filterContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScrollContent}
-        >
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              selectedCategory === 'all' && styles.filterButtonActive
-            ]}
-            onPress={() => setSelectedCategory('all')}
-          >
-            <Text style={[
-              styles.filterButtonText,
-              selectedCategory === 'all' && styles.filterButtonTextActive
-            ]}>
-              All
-            </Text>
-          </TouchableOpacity>
-          {CATEGORIES.map(cat => (
+      {goals.length > 0 && (
+        <View style={styles.filterSection}>
+          <View style={styles.filterHeader}>
+            <Text style={styles.filterHeaderText}>Filters</Text>
             <TouchableOpacity
-              key={cat.id}
-              style={[
-                styles.filterButton,
-                { borderColor: cat.color },
-                selectedCategory === cat.id && { backgroundColor: cat.color }
-              ]}
-              onPress={() => setSelectedCategory(cat.id)}
+              style={styles.filterToggle}
+              onPress={() => setFiltersVisible(!filtersVisible)}
             >
-              <Text style={[
-                styles.filterButtonText,
-                selectedCategory === cat.id && styles.filterButtonTextActive
-              ]}>
-                {cat.label}
+              <Text style={styles.filterToggleText}>
+                {filtersVisible ? '▼' : '▶'}
               </Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+          </View>
+          {filtersVisible && (
+            <View style={styles.filterContainer}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.filterScrollContent}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.filterButton,
+                    selectedCategory === 'all' && styles.filterButtonActive
+                  ]}
+                  onPress={() => setSelectedCategory('all')}
+                >
+                  <Text style={[
+                    styles.filterButtonText,
+                    selectedCategory === 'all' && styles.filterButtonTextActive
+                  ]}>
+                    All
+                  </Text>
+                </TouchableOpacity>
+                {CATEGORIES.map(cat => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[
+                      styles.filterButton,
+                      { borderColor: cat.color },
+                      selectedCategory === cat.id && { backgroundColor: cat.color }
+                    ]}
+                    onPress={() => setSelectedCategory(cat.id)}
+                  >
+                    <Text style={[
+                      styles.filterButtonText,
+                      selectedCategory === cat.id && styles.filterButtonTextActive
+                    ]}>
+                      {cat.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      )}
 
       <GoalList
         goals={filteredGoals}
@@ -220,11 +238,32 @@ const getStyles = (colors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  filterContainer: {
+  filterSection: {
     backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  filterHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
     paddingVertical: 12,
+  },
+  filterHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  filterToggle: {
+    padding: 4,
+  },
+  filterToggleText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  filterContainer: {
+    paddingBottom: 12,
   },
   filterScrollContent: {
     paddingHorizontal: 20,

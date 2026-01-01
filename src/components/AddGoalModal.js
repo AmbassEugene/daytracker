@@ -19,9 +19,9 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
   const styles = getStyles(colors);
   const [description, setDescription] = useState('');
   const [purpose, setPurpose] = useState('');
-  const [priority, setPriority] = useState('medium');
+  const [priority, setPriority] = useState(null);
   const [isRepeating, setIsRepeating] = useState(false);
-  const [category, setCategory] = useState('personal');
+  const [category, setCategory] = useState(null);
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
 
@@ -69,9 +69,9 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
     if (editingGoal) {
       setDescription(editingGoal.description || '');
       setPurpose(editingGoal.purpose || '');
-      setPriority(editingGoal.priority || 'medium');
+      setPriority(editingGoal.priority || null);
       setIsRepeating(editingGoal.isRepeating || false);
-      setCategory(editingGoal.category || 'personal');
+      setCategory(editingGoal.category || null);
       setDueDate(editingGoal.dueDate || '');
       setDueTime(editingGoal.dueTime || '');
     }
@@ -80,9 +80,9 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
   const resetForm = () => {
     setDescription('');
     setPurpose('');
-    setPriority('medium');
+    setPriority(null);
     setIsRepeating(false);
-    setCategory('personal');
+    setCategory(null);
     setDueDate('');
     setDueTime('');
   };
@@ -146,6 +146,7 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
             <TextInput
               style={styles.input}
               placeholder="What do you want to achieve?"
+              placeholderTextColor={colors.textTertiary}
               value={description}
               onChangeText={setDescription}
               multiline
@@ -155,6 +156,7 @@ export default function AddGoalModal({ visible, onClose, onSubmit, editingGoal =
             <TextInput
               style={styles.input}
               placeholder="Why does this matter to you?"
+              placeholderTextColor={colors.textTertiary}
               value={purpose}
               onChangeText={setPurpose}
               multiline

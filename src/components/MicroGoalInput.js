@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 import { SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../constants';
 
@@ -29,6 +29,11 @@ export default function MicroGoalInput({ onAdd, placeholder = "+ Add micro goal"
         returnKeyType="done"
         blurOnSubmit={false}
       />
+      {text.trim().length > 0 && (
+        <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -36,14 +41,33 @@ export default function MicroGoalInput({ onAdd, placeholder = "+ Add micro goal"
 const getStyles = (colors) => StyleSheet.create({
   container: {
     marginTop: SPACING.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   input: {
     ...TYPOGRAPHY.body,
+    flex: 1,
     backgroundColor: colors.inputBackground,
     borderRadius: BORDER_RADIUS.sm,
-    padding: SPACING.md,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
     color: colors.textPrimary,
     borderWidth: 1,
     borderColor: colors.border,
+    minHeight: 36,
+  },
+  addButton: {
+    backgroundColor: colors.primary,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

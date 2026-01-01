@@ -8,14 +8,16 @@ export const PRIORITY_COLORS = {
 // Priority background colors (light tints for card backgrounds)
 export const PRIORITY_BACKGROUNDS = {
   light: {
-    high: '#fef2f2',      // Very light red
-    medium: '#fffbeb',    // Very light amber
-    low: '#f0fdf4',       // Very light green
+    high: '#fca5a5',      // Darker light red
+    medium: '#fde68a',    // Even darker light amber
+    low: '#a7f3d0',       // Even darker light green
+    none: '#f3f4f6',      // Darker light gray
   },
   dark: {
-    high: '#7f1d1d',      // Dark red
-    medium: '#78350f',    // Dark amber
-    low: '#064e3b',       // Dark green
+    high: '#991b1b',      // Lighter dark red
+    medium: '#92400e',    // Lighter dark amber
+    low: '#065f46',       // Lighter dark green
+    none: '#1f2937',      // Default dark gray
   },
 };
 

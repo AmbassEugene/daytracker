@@ -1,6 +1,7 @@
-import { memo, useState } from 'react';
-import { StyleSheet, View, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { memo, useState, useRef } from 'react';
+import { StyleSheet, View, Text, Pressable, TouchableOpacity, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { PRIORITY_COLORS, PRIORITY_BACKGROUNDS, CATEGORY_MAP } from '../constants';
 import useThemeColors from '../hooks/useThemeColors';
 import { useTheme } from '../contexts/ThemeContext';
@@ -10,12 +11,14 @@ import MicroGoalInput from './MicroGoalInput';
 const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask, onToggleSubtask, onDeleteSubtask }) => {
   const colors = useThemeColors();
   const { isDark } = useTheme();
-  const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][goal.priority];
-  const styles = getStyles(colors, priorityBgColor);
+  const priorityBgColor = PRIORITY_BACKGROUNDS[isDark ? 'dark' : 'light'][goal.priority || 'none'];
+  const shadowColor = isDark ? priorityBgColor : '#000';
+  const styles = getStyles(colors, priorityBgColor, shadowColor);
   const hasActiveStreak = goal.isRepeating && goal.currentStreak > 0;
   const showStreakInfo = goal.isRepeating && (goal.currentStreak > 0 || goal.longestStreak > 0);
   const categoryInfo = goal.category ? CATEGORY_MAP[goal.category] : null;
   const [isExpanded, setIsExpanded] = useState(false);
+  const swipeableRef = useRef(null);
 
   // Calculate subtask progress
   const subtasks = goal.subtasks || [];
@@ -158,14 +161,47 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const goalIsOverdue = isOverdue();
   const dueDateDisplay = formatDueDate();
 
+  // Render right swipe action (complete)
+  const renderRightActions = (progress, dragX) => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <Animated.View style={[styles.swipeAction, { transform: [{ scale }] }]}>
+        <Ionicons name="checkmark-circle" size={32} color={colors.white} />
+        <Text style={styles.swipeActionText}>Complete</Text>
+      </Animated.View>
+    );
+  };
+
+  // Handle swipe to complete
+  const handleSwipeComplete = () => {
+    onToggle(goal.id);
+    swipeableRef.current?.close();
+  };
+
   return (
-    <View style={[styles.goalItem, goal.completed && styles.goalItemCompleted]}>
-      <TouchableOpacity
-        style={styles.goalContent}
-        onPress={() => setIsExpanded(!isExpanded)}
-        onLongPress={() => onToggle(goal.id)}
-      >
-        <View style={styles.goalInfo}>
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      onSwipeableOpen={(direction) => {
+        if (direction === 'right') {
+          handleSwipeComplete();
+        }
+      }}
+      overshootRight={false}
+      rightThreshold={80}
+    >
+      <View style={[styles.goalItem, goal.completed && styles.goalItemCompleted]}>
+        <TouchableOpacity
+          style={styles.goalContent}
+          onPress={() => setIsExpanded(!isExpanded)}
+          onLongPress={() => onToggle(goal.id)}
+        >
+          <View style={styles.goalInfo}>
           <Text style={[styles.goalDescription, goal.completed && styles.goalTextCompleted]}>
             {goal.description}
           </Text>
@@ -214,9 +250,11 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
           {/* Row 2: Priority + Category + Daily tag */}
           {(categoryInfo || goal.isRepeating || goal.priority) && (
             <View style={styles.badgeRow}>
-              <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
-                <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
-              </View>
+              {goal.priority && (
+                <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
+                  <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
+                </View>
+              )}
               {categoryInfo && (
                 <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
                   <Text style={styles.categoryText}>{categoryInfo.label}</Text>
@@ -275,13 +313,14 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
           <Ionicons name="share-outline" size={20} color={colors.primary} />
         </Pressable>
       </View>
-    </View>
+      </View>
+    </Swipeable>
   );
 });
 
 export default GoalItem;
 
-const getStyles = (colors, priorityBgColor) => StyleSheet.create({
+const getStyles = (colors, priorityBgColor, shadowColor) => StyleSheet.create({
   goalItem: {
     backgroundColor: priorityBgColor,
     borderRadius: 12,
@@ -289,9 +328,9 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    shadowColor: '#000',
+    shadowColor: shadowColor,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -457,5 +496,20 @@ const getStyles = (colors, priorityBgColor) => StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     fontWeight: '600',
+  },
+  swipeAction: {
+    backgroundColor: colors.success,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    marginBottom: 16,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  swipeActionText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 4,
   },
 });

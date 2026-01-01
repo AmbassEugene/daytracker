@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import useThemeColors from '../hooks/useThemeColors';
 import { SPACING, BORDER_RADIUS, TYPOGRAPHY } from '../constants';
 
@@ -30,25 +30,30 @@ export default function MicroGoalList({ subtasks = [], onToggle, onDelete }) {
       <Text style={styles.header}>Micro Goals</Text>
       {subtasks.map((subtask) => (
         <View key={subtask.id} style={styles.subtaskItem}>
-          <Pressable
-            style={[
-              styles.checkbox,
-              subtask.completed && styles.checkboxChecked
-            ]}
+          <TouchableOpacity
+            style={styles.subtaskRow}
             onPress={() => onToggle(subtask.id)}
+            activeOpacity={0.6}
           >
-            {subtask.completed && (
-              <Text style={styles.checkmark}>✓</Text>
-            )}
-          </Pressable>
-          <Text
-            style={[
-              styles.subtaskText,
-              subtask.completed && styles.subtaskTextCompleted
-            ]}
-          >
-            {subtask.description}
-          </Text>
+            <View
+              style={[
+                styles.checkbox,
+                subtask.completed && styles.checkboxChecked
+              ]}
+            >
+              {subtask.completed && (
+                <Text style={styles.checkmark}>✓</Text>
+              )}
+            </View>
+            <Text
+              style={[
+                styles.subtaskText,
+                subtask.completed && styles.subtaskTextCompleted
+              ]}
+            >
+              {subtask.description}
+            </Text>
+          </TouchableOpacity>
           <Pressable
             style={styles.deleteButton}
             onPress={() => handleDelete(subtask.id, subtask.description)}
@@ -78,6 +83,12 @@ const getStyles = (colors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
+    gap: SPACING.sm,
+  },
+  subtaskRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: SPACING.sm,
   },
   checkbox: {
