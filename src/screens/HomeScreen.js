@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, Pressable, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, Pressable, Text, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import GoalList from '../components/GoalList';
 import AddGoalModal from '../components/AddGoalModal';
@@ -93,9 +94,11 @@ export default function HomeScreen() {
               style={styles.filterToggle}
               onPress={() => setFiltersVisible(!filtersVisible)}
             >
-              <Text style={styles.filterToggleText}>
-                {filtersVisible ? '▼' : '▶'}
-              </Text>
+              <Ionicons
+                name={filtersVisible ? "chevron-down" : "chevron-forward"}
+                size={18}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
           </View>
           {filtersVisible && (
@@ -143,16 +146,22 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <GoalList
-        goals={filteredGoals}
-        onToggle={toggleGoal}
-        onEdit={handleEditGoal}
-        onDelete={deleteGoal}
-        onShare={handleShareGoal}
-        onAddSubtask={addSubgoal}
-        onToggleSubtask={toggleSubgoal}
-        onDeleteSubtask={deleteSubgoal}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <GoalList
+          goals={filteredGoals}
+          onToggle={toggleGoal}
+          onEdit={handleEditGoal}
+          onDelete={deleteGoal}
+          onShare={handleShareGoal}
+          onAddSubtask={addSubgoal}
+          onToggleSubtask={toggleSubgoal}
+          onDeleteSubtask={deleteSubgoal}
+        />
+      </KeyboardAvoidingView>
 
       {menuVisible && (
         <View style={styles.menuContainer}>
@@ -237,6 +246,9 @@ const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   filterSection: {
     backgroundColor: colors.white,

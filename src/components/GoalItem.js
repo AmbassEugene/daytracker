@@ -1,4 +1,4 @@
-import { memo, useState, useRef } from 'react';
+import { memo, useState, useRef, useCallback } from 'react';
 import { StyleSheet, View, Text, Pressable, TouchableOpacity, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
@@ -25,50 +25,9 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const completedSubtasks = subtasks.filter(st => st.completed).length;
   const hasSubtasks = subtasks.length > 0;
 
-  // Handle subtask toggle with auto-complete prompt
-  const handleToggleSubtask = (subgoalId) => {
-    // Find the subtask being toggled
-    const subtask = subtasks.find(st => st.id === subgoalId);
-    if (!subtask) return;
-
-    // Check if this was the last incomplete subtask and it's now being completed
-    const wasLastIncomplete = !subtask.completed &&
-      subtasks.filter(st => !st.completed).length === 1;
-
-    // If parent is not completed and all subtasks will be complete, prompt FIRST
-    if (wasLastIncomplete && !goal.completed) {
-      Alert.alert(
-        'All Micro Goals Complete!',
-        'Mark parent goal as done too?',
-        [
-          {
-            text: 'No, keep it open',
-            style: 'cancel',
-            onPress: () => {
-              // User said no, just toggle the subtask
-              onToggleSubtask(goal.id, subgoalId);
-            }
-          },
-          {
-            text: 'Yes, complete it',
-            onPress: () => {
-              // Toggle subtask AND parent together
-              onToggleSubtask(goal.id, subgoalId);
-              // Small delay to let subtask update first
-              setTimeout(() => onToggle(goal.id), 100);
-            },
-          },
-        ],
-        { cancelable: false } // Prevent dismissing without choosing
-      );
-    } else {
-      // Not the last subtask, just toggle normally
-      onToggleSubtask(goal.id, subgoalId);
-    }
-  };
 
   // Handle goal deletion with confirmation
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     Alert.alert(
       'Delete Goal',
       'Are you sure you want to delete this goal?',
@@ -81,7 +40,7 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
         },
       ]
     );
-  };
+  }, [onDelete, goal.id]);
 
   // Check if goal is overdue
   const isOverdue = () => {
@@ -161,27 +120,37 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
   const goalIsOverdue = isOverdue();
   const dueDateDisplay = formatDueDate();
 
-  // Render right swipe action (complete)
-  const renderRightActions = (progress, dragX) => {
+  // Render right swipe action (complete/undo)
+  const renderRightActions = useCallback((_progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [-100, 0],
       outputRange: [1, 0],
       extrapolate: 'clamp',
     });
 
+    const swipeActionStyle = goal.completed
+      ? [styles.swipeAction, styles.swipeActionUndo]
+      : styles.swipeAction;
+
     return (
-      <Animated.View style={[styles.swipeAction, { transform: [{ scale }] }]}>
-        <Ionicons name="checkmark-circle" size={32} color={colors.white} />
-        <Text style={styles.swipeActionText}>Complete</Text>
+      <Animated.View style={[swipeActionStyle, { transform: [{ scale }] }]}>
+        <Ionicons
+          name={goal.completed ? "arrow-undo-circle" : "checkmark-circle"}
+          size={32}
+          color={colors.white}
+        />
+        <Text style={styles.swipeActionText}>
+          {goal.completed ? "Undo" : "Complete"}
+        </Text>
       </Animated.View>
     );
-  };
+  }, [goal.completed, styles.swipeAction, styles.swipeActionUndo, styles.swipeActionText, colors.white]);
 
-  // Handle swipe to complete
-  const handleSwipeComplete = () => {
+  // Handle swipe to toggle
+  const handleSwipeComplete = useCallback(() => {
     onToggle(goal.id);
     swipeableRef.current?.close();
-  };
+  }, [onToggle, goal.id]);
 
   return (
     <Swipeable
@@ -202,117 +171,117 @@ const GoalItem = memo(({ goal, onToggle, onEdit, onDelete, onShare, onAddSubtask
           onLongPress={() => onToggle(goal.id)}
         >
           <View style={styles.goalInfo}>
-          <Text style={[styles.goalDescription, goal.completed && styles.goalTextCompleted]}>
-            {goal.description}
-          </Text>
-          {goal.purpose ? (
-            <Text style={styles.goalPurpose}>Purpose: {goal.purpose}</Text>
-          ) : null}
+            <Text style={[styles.goalDescription, goal.completed && styles.goalTextCompleted]}>
+              {goal.description}
+            </Text>
+            {goal.purpose ? (
+              <Text style={styles.goalPurpose}>Purpose: {goal.purpose}</Text>
+            ) : null}
 
-          {/* Row 1: Streak + Subtasks + Due Date */}
-          {(showStreakInfo || hasSubtasks || dueDateDisplay) && (
-            <View style={styles.badgeRow}>
-              {hasActiveStreak && (
-                <View style={styles.currentStreakBadge}>
-                  <Text style={styles.streakIcon}>🔥</Text>
-                  <Text style={styles.streakText}>{goal.currentStreak} day streak</Text>
-                </View>
-              )}
-              {goal.longestStreak > 0 && !hasActiveStreak && (
-                <Text style={styles.longestStreakText}>
-                  Best: {goal.longestStreak} days
-                </Text>
-              )}
-              {hasSubtasks && (
-                <View style={styles.subtaskProgressBadge}>
-                  <Text style={styles.subtaskProgressIcon}>✓</Text>
-                  <Text style={styles.subtaskProgressText}>
-                    {completedSubtasks}/{subtasks.length}
+            {/* Row 1: Streak + Subtasks + Due Date */}
+            {(showStreakInfo || hasSubtasks || dueDateDisplay) && (
+              <View style={styles.badgeRow}>
+                {hasActiveStreak && (
+                  <View style={styles.currentStreakBadge}>
+                    <Text style={styles.streakIcon}>🔥</Text>
+                    <Text style={styles.streakText}>{goal.currentStreak} day streak</Text>
+                  </View>
+                )}
+                {goal.longestStreak > 0 && !hasActiveStreak && (
+                  <Text style={styles.longestStreakText}>
+                    Best: {goal.longestStreak} days
                   </Text>
-                </View>
-              )}
-              {dueDateDisplay && (
-                <View style={[
-                  styles.dueDateBadge,
-                  goalIsOverdue && styles.dueDateBadgeOverdue
-                ]}>
-                  <Text style={[
-                    styles.dueDateText,
-                    goalIsOverdue && styles.dueDateTextOverdue
+                )}
+                {hasSubtasks && (
+                  <View style={styles.subtaskProgressBadge}>
+                    <Text style={styles.subtaskProgressIcon}>✓</Text>
+                    <Text style={styles.subtaskProgressText}>
+                      {completedSubtasks}/{subtasks.length}
+                    </Text>
+                  </View>
+                )}
+                {dueDateDisplay && (
+                  <View style={[
+                    styles.dueDateBadge,
+                    goalIsOverdue && styles.dueDateBadgeOverdue
                   ]}>
-                    {goalIsOverdue && '⚠️ '}{dueDateDisplay}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
+                    <Text style={[
+                      styles.dueDateText,
+                      goalIsOverdue && styles.dueDateTextOverdue
+                    ]}>
+                      {goalIsOverdue && '⚠️ '}{dueDateDisplay}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
 
-          {/* Row 2: Priority + Category + Daily tag */}
-          {(categoryInfo || goal.isRepeating || goal.priority) && (
-            <View style={styles.badgeRow}>
-              {goal.priority && (
-                <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
-                  <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
-                </View>
-              )}
-              {categoryInfo && (
-                <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
-                  <Text style={styles.categoryText}>{categoryInfo.label}</Text>
-                </View>
-              )}
-              {goal.isRepeating && (
-                <View style={styles.repeatingBadge}>
-                  <Text style={styles.repeatingText}>Daily</Text>
-                </View>
-              )}
-            </View>
-          )}
+            {/* Row 2: Priority + Category + Daily tag */}
+            {(categoryInfo || goal.isRepeating || goal.priority) && (
+              <View style={styles.badgeRow}>
+                {goal.priority && (
+                  <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[goal.priority] }]}>
+                    <Text style={styles.priorityText}>{goal.priority.toUpperCase()}</Text>
+                  </View>
+                )}
+                {categoryInfo && (
+                  <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color }]}>
+                    <Text style={styles.categoryText}>{categoryInfo.label}</Text>
+                  </View>
+                )}
+                {goal.isRepeating && (
+                  <View style={styles.repeatingBadge}>
+                    <Text style={styles.repeatingText}>Daily</Text>
+                  </View>
+                )}
+              </View>
+            )}
 
-          {/* Subtasks - shown when expanded */}
-          {isExpanded && (
-            <>
-              <MicroGoalList
-                subtasks={subtasks}
-                onToggle={handleToggleSubtask}
-                onDelete={(subgoalId) => onDeleteSubtask(goal.id, subgoalId)}
-              />
-              <MicroGoalInput
-                onAdd={(description) => onAddSubtask(goal.id, description)}
-                placeholder="+ Add micro goal"
-              />
-            </>
-          )}
+            {/* Subtasks - shown when expanded */}
+            {isExpanded && (
+              <>
+                <MicroGoalList
+                  subtasks={subtasks}
+                  onToggle={(subtaskId) => onToggleSubtask(goal.id, subtaskId)}
+                  onDelete={(subgoalId) => onDeleteSubtask(goal.id, subgoalId)}
+                />
+                <MicroGoalInput
+                  onAdd={(description) => onAddSubtask(goal.id, description)}
+                  placeholder="+ Add micro goal"
+                />
+              </>
+            )}
+          </View>
+        </TouchableOpacity>
+        <View style={styles.actionButtons}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.deleteButton,
+              pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+            ]}
+            onPress={handleDelete}
+          >
+            <Text style={styles.deleteButtonText}>×</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.editButton,
+              pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+            ]}
+            onPress={() => onEdit(goal)}
+          >
+            <Text style={styles.editButtonText}>✎</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.shareButton,
+              pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+            ]}
+            onPress={() => onShare(goal)}
+          >
+            <Ionicons name="share-outline" size={20} color={colors.primary} />
+          </Pressable>
         </View>
-      </TouchableOpacity>
-      <View style={styles.actionButtons}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.deleteButton,
-            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
-          ]}
-          onPress={handleDelete}
-        >
-          <Text style={styles.deleteButtonText}>×</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [
-            styles.editButton,
-            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
-          ]}
-          onPress={() => onEdit(goal)}
-        >
-          <Text style={styles.editButtonText}>✎</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [
-            styles.shareButton,
-            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
-          ]}
-          onPress={() => onShare(goal)}
-        >
-          <Ionicons name="share-outline" size={20} color={colors.primary} />
-        </Pressable>
-      </View>
       </View>
     </Swipeable>
   );
@@ -505,6 +474,9 @@ const getStyles = (colors, priorityBgColor, shadowColor) => StyleSheet.create({
     marginBottom: 16,
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
+  },
+  swipeActionUndo: {
+    backgroundColor: colors.warning,
   },
   swipeActionText: {
     color: colors.white,

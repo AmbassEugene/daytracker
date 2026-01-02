@@ -364,28 +364,138 @@ export default function useGoalManager() {
 
   // Toggle a subtask's completion status
   const toggleSubgoal = useCallback((goalId, subtaskId) => {
-    const updatedGoals = goals.map(goal => {
-      if (goal.id === goalId) {
-        const updatedSubtasks = (goal.subtasks || []).map(subgoal => {
-          if (subgoal.id === subtaskId) {
-            return {
-              ...subgoal,
-              completed: !subgoal.completed,
-              completedAt: !subgoal.completed ? new Date().toISOString() : null,
-            };
-          }
-          return subgoal;
-        });
-        return {
-          ...goal,
-          subtasks: updatedSubtasks,
-        };
-      }
-      return goal;
-    });
+    // Find the goal and subtask
+    const goal = goals.find(g => g.id === goalId);
+    if (!goal) return;
 
-    saveGoals(updatedGoals);
-  }, [goals, saveGoals]);
+    const subtask = (goal.subtasks || []).find(st => st.id === subtaskId);
+    if (!subtask) return;
+
+    // Check if this was the last incomplete subtask and it's now being completed
+    const wasLastIncomplete = !subtask.completed &&
+      (goal.subtasks || []).filter(st => !st.completed).length === 1;
+
+    // If parent is not completed and all subtasks will be complete, prompt FIRST
+    if (wasLastIncomplete && !goal.completed) {
+      Alert.alert(
+        'All Micro Goals Complete!',
+        'Mark parent goal as done too?',
+        [
+          {
+            text: 'No, keep it open',
+            style: 'cancel',
+            onPress: () => {
+              // User said no, just toggle the subtask
+              const updatedGoals = goals.map(g => {
+                if (g.id === goalId) {
+                  const updatedSubtasks = (g.subtasks || []).map(subgoal => {
+                    if (subgoal.id === subtaskId) {
+                      return {
+                        ...subgoal,
+                        completed: !subgoal.completed,
+                        completedAt: !subgoal.completed ? new Date().toISOString() : null,
+                      };
+                    }
+                    return subgoal;
+                  });
+                  return {
+                    ...g,
+                    subtasks: updatedSubtasks,
+                  };
+                }
+                return g;
+              });
+              saveGoals(updatedGoals);
+            }
+          },
+          {
+            text: 'Yes, complete it',
+            onPress: () => {
+              // Toggle subtask first
+              let updatedGoals = goals.map(g => {
+                if (g.id === goalId) {
+                  const updatedSubtasks = (g.subtasks || []).map(subgoal => {
+                    if (subgoal.id === subtaskId) {
+                      return {
+                        ...subgoal,
+                        completed: !subgoal.completed,
+                        completedAt: !subgoal.completed ? new Date().toISOString() : null,
+                      };
+                    }
+                    return subgoal;
+                  });
+                  return {
+                    ...g,
+                    subtasks: updatedSubtasks,
+                  };
+                }
+                return g;
+              });
+
+              // Then toggle parent goal
+              updatedGoals = updatedGoals.map(g => {
+                if (g.id === goalId) {
+                  const isCompleting = !g.completed;
+                  const today = new Date().toDateString();
+                  let updatedCompletionHistory = g.completionHistory || [];
+
+                  if (isCompleting && g.isRepeating) {
+                    const todayAlreadyCompleted = updatedCompletionHistory.some(
+                      date => new Date(date).toDateString() === today
+                    );
+                    if (!todayAlreadyCompleted) {
+                      updatedCompletionHistory = [...updatedCompletionHistory, new Date().toISOString()];
+                    }
+                  } else if (!isCompleting && g.isRepeating) {
+                    updatedCompletionHistory = updatedCompletionHistory.filter(
+                      date => new Date(date).toDateString() !== today
+                    );
+                  }
+
+                  const { currentStreak, longestStreak } = calculateStreak(updatedCompletionHistory);
+
+                  return {
+                    ...g,
+                    completed: isCompleting,
+                    completionHistory: updatedCompletionHistory,
+                    currentStreak,
+                    longestStreak: Math.max(g.longestStreak || 0, longestStreak),
+                  };
+                }
+                return g;
+              });
+
+              saveGoals(updatedGoals);
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      // Not the last subtask, just toggle normally
+      const updatedGoals = goals.map(g => {
+        if (g.id === goalId) {
+          const updatedSubtasks = (g.subtasks || []).map(subgoal => {
+            if (subgoal.id === subtaskId) {
+              return {
+                ...subgoal,
+                completed: !subgoal.completed,
+                completedAt: !subgoal.completed ? new Date().toISOString() : null,
+              };
+            }
+            return subgoal;
+          });
+          return {
+            ...g,
+            subtasks: updatedSubtasks,
+          };
+        }
+        return g;
+      });
+
+      saveGoals(updatedGoals);
+    }
+  }, [goals, saveGoals, calculateStreak]);
 
   // Delete a subtask
   const deleteSubgoal = useCallback((goalId, subtaskId) => {
